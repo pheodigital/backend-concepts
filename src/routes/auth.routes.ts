@@ -1,13 +1,47 @@
 import { FastifyInstance } from 'fastify';
 import { AuthController } from '../controllers/auth.controller';
-import { authenticate } from '../common/auth/auth.middleware';
+import { requireAuth } from '../common/middleware/auth.middleware';
+import { validate } from '../common/middleware/validator.middleware';
+import {
+  registerSchema,
+  loginSchema,
+  refreshSchema,
+} from '../validators/auth.validator';
 
 export async function authRoutes(app: FastifyInstance) {
-  app.post('/register', AuthController.register);
-  app.post('/login', AuthController.login);
-  app.get('/me', { preHandler: [authenticate] }, async (req, reply) => {
-    return { userId: req?.user?.userId, role: req?.user?.role };
+  // ✅ Register new user
+  app.post(
+    '/register',
+    { preHandler: [validate(registerSchema, 'body')] },
+    AuthController.register,
+  );
+
+  // ✅ Login
+  app.post(
+    '/login',
+    { preHandler: [validate(loginSchema, 'body')] },
+    AuthController.login,
+  );
+
+  // ✅ Get current user (/me)
+  app.get('/me', { preHandler: [requireAuth] }, async (req, reply) => {
+    return {
+      userId: req.user!.userId,
+      role: req.user!.role,
+    };
   });
-  app.post('/refresh', AuthController.refresh); // <--- refresh token
-  app.post('/logout', AuthController.logout); // <--- revoke refresh token
+
+  // ✅ Refresh access token
+  app.post(
+    '/refresh',
+    { preHandler: [validate(refreshSchema, 'body')] },
+    AuthController.refresh,
+  );
+
+  // ✅ Logout / revoke refresh token
+  app.post(
+    '/logout',
+    { preHandler: [validate(refreshSchema, 'body')] },
+    AuthController.logout,
+  );
 }

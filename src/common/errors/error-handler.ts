@@ -6,7 +6,7 @@ export function errorHandler(
   _req: FastifyRequest,
   reply: FastifyReply,
 ) {
-  // Handle known AppError
+  // ✅ Known application errors
   if (error instanceof AppError) {
     return reply.status(error.statusCode).send({
       error: {
@@ -16,8 +16,18 @@ export function errorHandler(
     });
   }
 
-  // Unknown / unexpected error
-  console.error(error); // Log internally for debugging
+  // ✅ Prisma errors (safe handling)
+  if ((error as any).code?.startsWith('P')) {
+    return reply.status(400).send({
+      error: {
+        code: 'DATABASE_ERROR',
+        message: 'Invalid database operation',
+      },
+    });
+  }
+
+  // ❌ Unexpected errors
+  console.error(error);
 
   return reply.status(500).send({
     error: {

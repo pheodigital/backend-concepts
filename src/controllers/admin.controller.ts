@@ -2,6 +2,9 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from '../config/prisma';
 
 export class AdminController {
+  /**
+   * List all users (Admin only)
+   */
   static async listUsers(_req: FastifyRequest, reply: FastifyReply) {
     const users = await prisma.user.findMany({
       select: {
