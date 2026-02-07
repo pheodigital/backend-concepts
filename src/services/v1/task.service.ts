@@ -1,85 +1,107 @@
-import { prisma } from '../../config/prisma';
-import { AppError } from '../../common/errors/app-error';
+// src/services/v1/task.service.ts
+import { Prisma, PrismaClient, TaskStatus } from '@prisma/client';
 import { UserContext } from '../../types/user-context';
-import { TaskStatus } from '@prisma/client';
-import { Prisma } from '@prisma/client';
 
-interface ListTasksOptions {
-  page?: number;
-  limit?: number;
-  status?: TaskStatus;
-  sort?: keyof Prisma.TaskOrderByWithRelationInput;
-  order?: 'asc' | 'desc';
+const prisma = new PrismaClient();
+
+interface PaginatedTasks {
+  data: any[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export class TaskService {
-  // ✅ Create Task
-  static async create(
-    data: { title: string; description?: string; status?: TaskStatus },
-    user: UserContext,
-  ) {
-    return prisma.task.create({
-      data: { ...data, ownerId: user.userId },
-    });
-  }
-
-  // ✅ Get task by ID with ownership check
-  static async getById(taskId: string, user: UserContext) {
-    const task = await prisma.task.findUnique({ where: { id: taskId } });
-
-    if (!task) throw new AppError(404, 'TASK_NOT_FOUND', 'Task not found');
-
-    if (task.ownerId !== user.userId && user.role !== 'ADMIN') {
-      throw new AppError(403, 'FORBIDDEN', 'Access denied');
-    }
-
-    return task;
-  }
-
-  // ✅ Update task
-  static async update(
-    taskId: string,
-    data: Partial<{ title: string; description?: string; status?: TaskStatus }>,
-    user: UserContext,
-  ) {
-    const task = await this.getById(taskId, user);
-
-    return prisma.task.update({
-      where: { id: task.id },
-      data,
-    });
-  }
-
-  // ✅ Delete task
-  static async delete(taskId: string, user: UserContext) {
-    const task = await this.getById(taskId, user);
-
-    await prisma.task.delete({ where: { id: task.id } });
-  }
-
-  // ✅ List tasks with pagination, filtering, sorting
   static async list(
     user: UserContext,
     page: number = 1,
     limit: number = 10,
-    status?: 'TODO' | 'IN_PROGRESS' | 'DONE',
+    status?: TaskStatus,
+    sort: 'createdAt' | 'updatedAt' | 'title' = 'createdAt',
     order: 'asc' | 'desc' = 'desc',
-  ) {
+  ): Promise<PaginatedTasks> {
     const where: Prisma.TaskWhereInput = {
       ownerId: user.userId,
       ...(status ? { status } : {}),
     };
 
+    const skip = (page - 1) * limit;
+
+    // Dynamic orderBy based on sort parameter
+    const orderBy: Prisma.TaskOrderByWithRelationInput[] = [{ [sort]: order }];
+
     const [tasks, total] = await Promise.all([
       prisma.task.findMany({
         where,
-        skip: (page - 1) * limit,
+        skip,
         take: limit,
-        orderBy: { createdAt: order },
+        orderBy,
       }),
       prisma.task.count({ where }),
     ]);
 
-    return { total, page, limit, tasks };
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: tasks,
+      meta: { page, limit, total, totalPages },
+    };
+  }
+
+  static async create(
+    data: {
+      title: string;
+      description?: string;
+      status?: TaskStatus;
+    },
+    user: UserContext,
+  ) {
+    return prisma.task.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        status: data.status || 'TODO',
+        ownerId: user.userId,
+      },
+    });
+  }
+
+  static async getById(id: string, user: UserContext) {
+    return prisma.task.findFirst({
+      where: {
+        id,
+        ownerId: user.userId,
+      },
+    });
+  }
+
+  static async update(
+    id: string,
+    data: {
+      title?: string;
+      description?: string;
+      status?: TaskStatus;
+    },
+    user: UserContext,
+  ) {
+    return prisma.task.updateMany({
+      where: {
+        id,
+        ownerId: user.userId,
+      },
+      data,
+    });
+  }
+
+  static async delete(id: string, user: UserContext) {
+    return prisma.task.deleteMany({
+      where: {
+        id,
+        ownerId: user.userId,
+      },
+    });
   }
 }

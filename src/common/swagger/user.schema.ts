@@ -22,7 +22,7 @@ export const UsersArraySchema = {
 export const getUserParamsJsonSchema = {
   type: 'object',
   properties: {
-    id: { type: 'string' }, // remove example here
+    id: { type: 'string', description: 'User CUID' },
   },
   required: ['id'],
 };

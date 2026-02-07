@@ -2,6 +2,7 @@
 
 export const AdminUserSchema = {
   type: 'object',
+  required: ['id', 'email', 'role', 'createdAt'],
   properties: {
     id: { type: 'string' },
     email: { type: 'string', format: 'email' },

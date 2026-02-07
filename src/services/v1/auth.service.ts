@@ -1,6 +1,8 @@
-import { prisma } from '../../config/prisma';
+import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import argon2 from 'argon2';
-import jwt from 'jsonwebtoken';
+
+import { prisma } from '../../config/prisma';
+
 import { AppError } from '../../common/errors/app-error';
 
 export class AuthService {
@@ -49,15 +51,23 @@ export class AuthService {
   }
 
   static generateAccessToken(userId: string, role: 'USER' | 'ADMIN') {
-    return jwt.sign({ userId, role }, process.env.JWT_ACCESS_SECRET!, {
-      expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
-    });
+    return jwt.sign(
+      { userId, role },
+      process.env.JWT_ACCESS_SECRET as jwt.Secret, // ✅ Cast to jwt.Secret
+      {
+        expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN as string) || '15m',
+      } as jwt.SignOptions, // ✅ Cast options
+    );
   }
-
   static generateRefreshToken(userId: string, role: 'USER' | 'ADMIN') {
-    return jwt.sign({ userId, role }, process.env.JWT_REFRESH_SECRET!, {
-      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
-    });
+    return jwt.sign(
+      { userId, role },
+      process.env.JWT_REFRESH_SECRET as jwt.Secret,
+      {
+        expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN ||
+          '7d') as jwt.SignOptions['expiresIn'],
+      },
+    );
   }
 
   static async refreshToken(oldToken: string) {

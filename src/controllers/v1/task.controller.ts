@@ -1,8 +1,8 @@
+// src/controllers/v1/task.controller.ts
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { TaskService } from '../../services/v1/task.service';
 import { UserContext } from '../../types/user-context';
-import { listTasksQuerySchema } from '../../validators/task-query.validator';
-import { AppError } from '../../common/errors/app-error';
+import { TaskStatus } from '@prisma/client';
 
 export class TaskController {
   private static getUser(req: FastifyRequest): UserContext {
@@ -13,23 +13,31 @@ export class TaskController {
   }
 
   static async createTask(req: FastifyRequest, reply: FastifyReply) {
-    const task = await TaskService.create(req.body as any, this.getUser(req));
+    const body = req.body as {
+      title: string;
+      description?: string;
+      status?: TaskStatus;
+    };
+    const task = await TaskService.create(body, this.getUser(req));
     return reply.status(201).send(task);
   }
 
-  // GET /tasks with pagination & filtering
   static async getTasks(req: FastifyRequest, reply: FastifyReply) {
     const query = req.query as {
       page?: number;
       limit?: number;
-      status?: 'TODO' | 'IN_PROGRESS' | 'DONE';
-      sort?: 'asc' | 'desc';
+      status?: TaskStatus;
+      sort?: 'createdAt' | 'updatedAt' | 'title';
+      order?: 'asc' | 'desc';
     };
 
-    const page = query.page || 1;
-    const limit = query.limit || 10;
-    const status = query.status;
-    const sort = query.sort || 'desc';
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      sort = 'createdAt',
+      order = 'desc',
+    } = query;
 
     const result = await TaskService.list(
       this.getUser(req),
@@ -37,26 +45,31 @@ export class TaskController {
       limit,
       status,
       sort,
+      order,
     );
     return reply.send(result);
   }
 
   static async getTaskById(req: FastifyRequest, reply: FastifyReply) {
-    const task = await TaskService.getById(req.params.id, this.getUser(req));
+    const { id } = req.params as { id: string };
+    const task = await TaskService.getById(id, this.getUser(req));
     return reply.send(task);
   }
 
   static async updateTask(req: FastifyRequest, reply: FastifyReply) {
-    const task = await TaskService.update(
-      req.params.id,
-      req.body,
-      this.getUser(req),
-    );
+    const { id } = req.params as { id: string };
+    const body = req.body as {
+      title?: string;
+      description?: string;
+      status?: TaskStatus;
+    };
+    const task = await TaskService.update(id, body, this.getUser(req));
     return reply.send(task);
   }
 
   static async deleteTask(req: FastifyRequest, reply: FastifyReply) {
-    await TaskService.delete(req.params.id, this.getUser(req));
-    return reply.send({ message: 'Task deleted successfully' });
+    const { id } = req.params as { id: string };
+    await TaskService.delete(id, this.getUser(req));
+    return reply.status(204).send();
   }
 }

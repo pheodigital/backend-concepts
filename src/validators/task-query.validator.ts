@@ -1,5 +1,5 @@
+// src/validators/task-query.validator.ts
 import { z } from 'zod';
-import { TaskStatus } from '@prisma/client';
 
 export const listTasksQuerySchema = z.object({
   page: z
@@ -16,3 +16,5 @@ export const listTasksQuerySchema = z.object({
   sort: z.enum(['createdAt', 'updatedAt', 'title']).optional(),
   order: z.enum(['asc', 'desc']).optional(),
 });
+
+export type ListTasksQuery = z.infer<typeof listTasksQuerySchema>;

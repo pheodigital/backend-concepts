@@ -1,16 +1,24 @@
+// src/server.ts
 import 'dotenv/config';
-
 import { buildApp } from './app';
 import { env } from './config/env';
 
 async function startServer() {
-  const app = buildApp();
-
   try {
-    await app.listen({ port: env.PORT, host: '0.0.0.0' });
-    console.log(`🚀 Server running on ${env.NODE_ENV} on port ${env.PORT}`);
+    const app = await buildApp();
+
+    await app.listen({
+      port: env.PORT,
+      host: '0.0.0.0', // suitable for Docker/k8s and production use [web:13][web:25]
+    });
+
+    console.log(
+      `🚀 Server running in ${env.NODE_ENV} mode on port ${env.PORT}`,
+    );
+    console.log(`📚 Swagger docs: http://localhost:${env.PORT}/docs`);
   } catch (err) {
-    app.log.error(err);
+    // In Fastify TS examples, failures cause immediate exit. [web:21][web:26]
+    console.error('Failed to start server', err);
     process.exit(1);
   }
 }

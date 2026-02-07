@@ -25,7 +25,7 @@ export const TasksArraySchema = {
 export const taskIdParamsJsonSchema = {
   type: 'object',
   properties: {
-    id: { type: 'string' }, // No example for strict Fastify
+    id: { type: 'string' },
   },
   required: ['id'],
 };

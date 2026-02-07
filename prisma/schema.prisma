@@ -51,6 +51,7 @@ enum Role {
 }
 
 enum TaskStatus {
+  TODO
   OPEN
   IN_PROGRESS
   DONE

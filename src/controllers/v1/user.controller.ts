@@ -10,8 +10,9 @@ export class UserController {
 
   // ✅ Get user by ID
   static async getUserById(req: FastifyRequest, reply: FastifyReply) {
+    const { id } = req.params as { id: string }; // ✅ Type assertion
     // req.params is already validated by middleware
-    const user = await UserService.getUserById(req.params.id as string);
+    const user = await UserService.getUserById(id);
     return reply.send(user);
   }
 }

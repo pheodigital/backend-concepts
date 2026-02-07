@@ -1,3 +1,4 @@
+// src/routes/v1/task.routes.ts
 import { FastifyInstance } from 'fastify';
 import { TaskController } from '../../controllers/v1/task.controller';
 import { requireAuth } from '../../common/middleware/auth.middleware';
@@ -16,68 +17,134 @@ import {
 } from '../../common/swagger/task.schema';
 
 export async function taskRoutesV1(app: FastifyInstance) {
-  // ✅ Get all tasks with pagination & filtering
-  app.get(
-    '/tasks',
-    {
-      preHandler: [requireAuth, validate(listTasksQuerySchema, 'query')],
-      schema: {
-        tags: ['Tasks'],
-        summary: 'Get all tasks with optional pagination & filtering',
-        description:
-          'Retrieve tasks for the current user. Supports pagination, filtering by status, and sorting by createdAt.',
-        querystring: {
-          type: 'object',
-          properties: {
-            page: { type: 'integer', minimum: 1, default: 1 },
-            limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-            status: { type: 'string', enum: ['TODO', 'IN_PROGRESS', 'DONE'] },
-            sort: {
-              type: 'string',
-              enum: ['createdAt', 'updatedAt', 'title'],
-              default: 'createdAt',
+  app.register(async (instance) => {
+    instance.addHook('preHandler', requireAuth);
+
+    // GET /tasks - paginated list
+    instance.get(
+      '/tasks',
+      {
+        preHandler: [validate(listTasksQuerySchema, 'query')],
+        schema: {
+          tags: ['Tasks'],
+          summary: 'Get all tasks with pagination & filtering',
+          querystring: {
+            type: 'object',
+            properties: {
+              page: { type: 'integer', minimum: 1, default: 1 },
+              limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
+              status: { type: 'string', enum: ['TODO', 'IN_PROGRESS', 'DONE'] },
+              sort: {
+                type: 'string',
+                enum: ['createdAt', 'updatedAt', 'title'],
+                default: 'createdAt',
+              },
+              order: { type: 'string', enum: ['asc', 'desc'], default: 'desc' },
             },
-            order: { type: 'string', enum: ['asc', 'desc'], default: 'desc' },
           },
+          response: {
+            200: PaginatedTasksSchema,
+            ...CommonErrorResponses,
+          },
+          security: [{ bearerAuth: [] }],
         },
-        response: {
-          200: PaginatedTasksSchema,
-          ...CommonErrorResponses,
-        },
-        security: [{ bearerAuth: [] }],
       },
-    },
-    TaskController.getTasks,
-  );
+      TaskController.getTasks,
+    );
 
-  // ✅ Other routes (Create, Get by ID, Update, Delete)
-  app.post(
-    '/tasks',
-    { preHandler: [requireAuth, validate(createTaskSchema, 'body')] },
-    TaskController.createTask,
-  );
+    // POST /tasks - create
+    instance.post(
+      '/tasks',
+      {
+        preHandler: [validate(createTaskSchema, 'body')],
+        schema: {
+          tags: ['Tasks'],
+          summary: 'Create a new task',
+          body: {
+            type: 'object',
+            required: ['title'],
+            properties: {
+              title: { type: 'string' },
+              description: { type: 'string' },
+              status: { type: 'string', enum: ['TODO', 'IN_PROGRESS', 'DONE'] },
+            },
+          },
+          response: {
+            201: TaskSchema,
+            ...CommonErrorResponses,
+          },
+          security: [{ bearerAuth: [] }],
+        },
+      },
+      TaskController.createTask,
+    );
 
-  app.get(
-    '/tasks/:id',
-    { preHandler: [requireAuth, validate(taskIdParamSchema, 'params')] },
-    TaskController.getTaskById,
-  );
+    // GET /tasks/:id
+    instance.get(
+      '/tasks/:id',
+      {
+        preHandler: [validate(taskIdParamSchema, 'params')],
+        schema: {
+          tags: ['Tasks'],
+          summary: 'Get a task by ID',
+          params: taskIdParamsJsonSchema,
+          response: {
+            200: TaskSchema,
+            ...CommonErrorResponses,
+          },
+          security: [{ bearerAuth: [] }],
+        },
+      },
+      TaskController.getTaskById,
+    );
 
-  app.put(
-    '/tasks/:id',
-    {
-      preHandler: [
-        requireAuth,
-        validate(taskIdParamSchema, 'params'),
-        validate(updateTaskSchema, 'body'),
-      ],
-    },
-    TaskController.updateTask,
-  );
+    // PUT /tasks/:id
+    instance.put(
+      '/tasks/:id',
+      {
+        preHandler: [
+          validate(taskIdParamSchema, 'params'),
+          validate(updateTaskSchema, 'body'),
+        ],
+        schema: {
+          tags: ['Tasks'],
+          summary: 'Update a task by ID',
+          params: taskIdParamsJsonSchema,
+          body: {
+            type: 'object',
+            properties: {
+              title: { type: 'string' },
+              description: { type: 'string' },
+              status: { type: 'string', enum: ['TODO', 'IN_PROGRESS', 'DONE'] },
+            },
+          },
+          response: {
+            200: TaskSchema,
+            ...CommonErrorResponses,
+          },
+          security: [{ bearerAuth: [] }],
+        },
+      },
+      TaskController.updateTask,
+    );
 
-  app.delete(
-    '/tasks/:id',
-    { preHandler: [requireAuth, validate(taskIdParamSchema, 'params')] },
-    TaskController.deleteTask,
-  );
+    // DELETE /tasks/:id
+    instance.delete(
+      '/tasks/:id',
+      {
+        preHandler: [validate(taskIdParamSchema, 'params')],
+        schema: {
+          tags: ['Tasks'],
+          summary: 'Delete a task by ID',
+          params: taskIdParamsJsonSchema,
+          response: {
+            204: { type: 'null' },
+            ...CommonErrorResponses,
+          },
+          security: [{ bearerAuth: [] }],
+        },
+      },
+      TaskController.deleteTask,
+    );
+  });
 }
