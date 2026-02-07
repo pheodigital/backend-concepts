@@ -1,35 +1,46 @@
+// src/app.ts
 import Fastify from 'fastify';
-import { errorHandler } from './common/errors/error-handler';
+import { registerSwagger } from './common/swagger/swagger';
 
-import { authRoutes } from './routes/auth.routes';
-import { userRoutes } from './routes/user.routes';
-import { taskRoutes } from './routes/task.routes';
-import { adminRoutes } from './routes/admin.routes';
+import { authRoutesV1 } from './routes/v1/auth.routes';
+import { userRoutesV1 } from './routes/v1/user.routes';
+import { taskRoutesV1 } from './routes/v1/task.routes';
+import { adminRoutesV1 } from './routes/v1/admin.routes';
 
 export function buildApp() {
-  const app = Fastify({
-    logger: true,
-  });
-
-  // 🌐 Centralized error handler
-  app.setErrorHandler(errorHandler);
-
-  // ❤️ Health check
-  app.get('/health', async () => {
-    return { status: 'ok' };
-  });
-
-  // 🔐 Auth & public routes
-  authRoutes(app);
-
-  // 👤 User routes
-  userRoutes(app);
-
-  // ✅ Protected task routes
-  taskRoutes(app);
-
-  // 🛡️ Admin-only routes
-  adminRoutes(app);
+  const app = Fastify({ logger: true });
 
   return app;
+}
+
+export async function startApp() {
+  const app = buildApp();
+
+  // Register Swagger
+  await registerSwagger(app);
+
+  // Add root route
+  app.get('/', async () => ({
+    message: 'Welcome to the API. Visit /docs for Swagger UI.',
+  }));
+
+  // Register all routes
+  await authRoutesV1(app);
+  await userRoutesV1(app);
+  await taskRoutesV1(app);
+  await adminRoutesV1(app);
+
+  // Start server
+  await app.listen({ port: 3000 });
+  console.log('Swagger docs: http://localhost:3000/docs');
+
+  return app;
+}
+
+// If you want direct start
+if (require.main === module) {
+  startApp().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
 }
