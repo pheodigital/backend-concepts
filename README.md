@@ -24,7 +24,7 @@ A comprehensive TypeScript-based guide and reference for mastering backend devel
 
 Core building blocks of backend development.
 
-- **Client–Server Architecture** - Understanding the separation between client and server
+- **Client–Server Architecture** - Understanding the separation between client and server.
 - **HTTP / HTTPS** - Secure communication protocols for web applications
 - **Request–Response Lifecycle** - How requests flow through the system
 - **Statelessness** - Building servers that don't rely on stored client state
