@@ -10,6 +10,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "prisma:seed": "ts-node prisma/seed.ts",
+    "postinstall": "prisma generate",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
