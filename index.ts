@@ -5,6 +5,7 @@ import { initSentry } from '../src/infrastructure/sentry';
 
 let appInstance: Awaited<ReturnType<typeof buildApp>> | null = null;
 
+// getApp initializes the Fastify app on the first request and reuses the same instance for subsequent requests.
 async function getApp() {
   if (!appInstance) {
     console.log('[vercel] starting app...');
