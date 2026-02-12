@@ -1,8 +1,9 @@
 // src/services/v1/task.service.ts
-import { Prisma, PrismaClient, TaskStatus } from '@prisma/client';
+import { Prisma, TaskStatus } from '@prisma/client';
+import { prisma } from '../../config/prisma';
 import { UserContext } from '../../types/user-context';
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 interface PaginatedTasks {
   data: any[];
@@ -20,8 +21,8 @@ export class TaskService {
     page: number = 1,
     limit: number = 10,
     status?: TaskStatus,
-    sort: 'createdAt' | 'updatedAt' | 'title' = 'createdAt',
-    order: 'asc' | 'desc' = 'desc',
+    sort?: 'createdAt' | 'updatedAt' | 'title',
+    order: 'asc' | 'desc' = 'desc'
   ): Promise<PaginatedTasks> {
     const where: Prisma.TaskWhereInput = {
       ownerId: user.userId,
@@ -31,7 +32,7 @@ export class TaskService {
     const skip = (page - 1) * limit;
 
     // Dynamic orderBy based on sort parameter
-    const orderBy: Prisma.TaskOrderByWithRelationInput[] = [{ [sort]: order }];
+    const orderBy: Prisma.TaskOrderByWithRelationInput[] = [{ [sort || 'createdAt']: order }];
 
     const [tasks, total] = await Promise.all([
       prisma.task.findMany({
@@ -57,7 +58,7 @@ export class TaskService {
       description?: string;
       status?: TaskStatus;
     },
-    user: UserContext,
+    user: UserContext
   ) {
     return prisma.task.create({
       data: {
@@ -85,7 +86,7 @@ export class TaskService {
       description?: string;
       status?: TaskStatus;
     },
-    user: UserContext,
+    user: UserContext
   ) {
     return prisma.task.updateMany({
       where: {

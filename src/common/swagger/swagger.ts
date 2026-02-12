@@ -18,6 +18,7 @@ export async function registerSwagger(app: FastifyInstance) {
           },
         },
       },
+      security: [{ bearerAuth: [] }],
     },
   });
 

@@ -1,27 +1,23 @@
 // src/routes/v1/auth.routes.ts
 import { FastifyInstance } from 'fastify';
-import { AuthController } from '../../controllers/v1/auth.controller';
 import { requireAuth } from '../../common/middleware/auth.middleware';
 import { validate } from '../../common/middleware/validator.middleware';
-import { CommonErrorResponses } from '../../common/swagger/error.swager';
 import {
-  RegisterBodySchema,
-  LoginBodySchema,
-  RefreshTokenBodySchema,
-  LoginResponseSchema,
   AccessTokenResponseSchema,
-  LogoutResponseSchema,
   CurrentUserResponseSchema,
+  LoginBodySchema,
+  LoginResponseSchema,
+  LogoutResponseSchema,
+  RefreshTokenBodySchema,
+  RegisterBodySchema,
   UserResponseSchema,
 } from '../../common/swagger/auth.schema';
-import {
-  registerSchema,
-  loginSchema,
-  refreshSchema,
-} from '../../validators/auth.validator';
+import { CommonErrorResponses, RateLimitErrorResponse } from '../../common/swagger/error.swager';
+import { AuthController } from '../../controllers/v1/auth.controller';
+import { loginSchema, refreshSchema, registerSchema } from '../../validators/auth.validator';
 
 export async function authRoutesV1(app: FastifyInstance) {
-  app.register(async (instance) => {
+  app.register(async instance => {
     // POST /register
     instance.post(
       '/register',
@@ -34,10 +30,17 @@ export async function authRoutesV1(app: FastifyInstance) {
           response: {
             200: UserResponseSchema,
             ...CommonErrorResponses,
+            ...RateLimitErrorResponse,
+          },
+        },
+        config: {
+          rateLimit: {
+            max: 5,
+            timeWindow: '1 minute',
           },
         },
       },
-      AuthController.register,
+      AuthController.register
     );
 
     // POST /login
@@ -52,10 +55,17 @@ export async function authRoutesV1(app: FastifyInstance) {
           response: {
             200: LoginResponseSchema,
             ...CommonErrorResponses,
+            ...RateLimitErrorResponse,
+          },
+        },
+        config: {
+          rateLimit: {
+            max: 5,
+            timeWindow: '1 minute',
           },
         },
       },
-      AuthController.login,
+      AuthController.login
     );
 
     // GET /me
@@ -73,10 +83,10 @@ export async function authRoutesV1(app: FastifyInstance) {
           },
         },
       },
-      async (req) => ({
+      async req => ({
         userId: req.user!.userId,
         role: req.user!.role,
-      }),
+      })
     );
 
     // POST /refresh
@@ -91,10 +101,17 @@ export async function authRoutesV1(app: FastifyInstance) {
           response: {
             200: AccessTokenResponseSchema,
             ...CommonErrorResponses,
+            ...RateLimitErrorResponse,
+          },
+        },
+        config: {
+          rateLimit: {
+            max: 3,
+            timeWindow: '1 minute',
           },
         },
       },
-      AuthController.refresh,
+      AuthController.refresh
     );
 
     // POST /logout
@@ -113,7 +130,7 @@ export async function authRoutesV1(app: FastifyInstance) {
           },
         },
       },
-      AuthController.logout,
+      AuthController.logout
     );
   });
 }

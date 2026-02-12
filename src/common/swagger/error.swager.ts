@@ -42,3 +42,13 @@ export const CommonErrorResponses = {
     ...ErrorResponseSchema,
   },
 };
+
+/**
+ * 🚦 Rate limit error (429)
+ */
+export const RateLimitErrorResponse = {
+  429: {
+    description: 'Too Many Requests',
+    ...ErrorResponseSchema,
+  },
+};

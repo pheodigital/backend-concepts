@@ -15,6 +15,9 @@ const envSchema = z.object({
       if (Number.isNaN(num)) throw new Error('PORT must be a number');
       return num;
     }),
+  FRONTEND_URL: z.string({
+    error: 'FRONTEND_URL is required',
+  }),
   DATABASE_URL: z.string({
     error: 'DATABASE_URL is required',
   }),

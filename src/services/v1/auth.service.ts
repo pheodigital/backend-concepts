@@ -1,16 +1,12 @@
-import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import argon2 from 'argon2';
+import jwt from 'jsonwebtoken';
 
 import { prisma } from '../../config/prisma';
 
 import { AppError } from '../../common/errors/app-error';
 
 export class AuthService {
-  static async register(
-    email: string,
-    password: string,
-    role: 'USER' | 'ADMIN' = 'USER',
-  ) {
+  static async register(email: string, password: string, role: 'USER' | 'ADMIN' = 'USER') {
     // Check if user exists
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) throw new AppError(400, 'USER_EXISTS', 'User already exists');
@@ -28,20 +24,10 @@ export class AuthService {
 
   static async login(email: string, password: string) {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user)
-      throw new AppError(
-        401,
-        'INVALID_CREDENTIALS',
-        'Invalid email or password',
-      );
+    if (!user) throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
 
     const valid = await argon2.verify(user.password, password);
-    if (!valid)
-      throw new AppError(
-        401,
-        'INVALID_CREDENTIALS',
-        'Invalid email or password',
-      );
+    if (!valid) throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
 
     // Generate tokens
     const accessToken = AuthService.generateAccessToken(user.id, user.role);
@@ -56,18 +42,13 @@ export class AuthService {
       process.env.JWT_ACCESS_SECRET as jwt.Secret, // ✅ Cast to jwt.Secret
       {
         expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN as string) || '15m',
-      } as jwt.SignOptions, // ✅ Cast options
+      } as jwt.SignOptions // ✅ Cast options
     );
   }
   static generateRefreshToken(userId: string, role: 'USER' | 'ADMIN') {
-    return jwt.sign(
-      { userId, role },
-      process.env.JWT_REFRESH_SECRET as jwt.Secret,
-      {
-        expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN ||
-          '7d') as jwt.SignOptions['expiresIn'],
-      },
-    );
+    return jwt.sign({ userId, role }, process.env.JWT_REFRESH_SECRET as jwt.Secret, {
+      expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN || '7d') as jwt.SignOptions['expiresIn'],
+    });
   }
 
   static async refreshToken(oldToken: string) {
@@ -76,11 +57,7 @@ export class AuthService {
     try {
       payload = jwt.verify(oldToken, process.env.JWT_REFRESH_SECRET!) as any;
     } catch {
-      throw new AppError(
-        401,
-        'INVALID_TOKEN',
-        'Invalid or expired refresh token',
-      );
+      throw new AppError(401, 'INVALID_TOKEN', 'Invalid or expired refresh token');
     }
 
     // Check DB
@@ -88,26 +65,15 @@ export class AuthService {
       where: { token: oldToken },
     });
     if (!stored || stored.revoked || stored.expiresAt < new Date()) {
-      throw new AppError(
-        401,
-        'INVALID_TOKEN',
-        'Refresh token invalid or expired',
-      );
+      throw new AppError(401, 'INVALID_TOKEN', 'Refresh token invalid or expired');
     }
 
     // Generate new access token
-    const accessToken = AuthService.generateAccessToken(
-      payload.userId,
-      payload.role,
-    );
+    const accessToken = AuthService.generateAccessToken(payload.userId, payload.role);
     return { accessToken };
   }
 
-  static async saveRefreshToken(
-    token: string,
-    userId: string,
-    expiresIn: string | number,
-  ) {
+  static async saveRefreshToken(token: string, userId: string, expiresIn: string | number) {
     const expiresAt = new Date();
     if (typeof expiresIn === 'string' && expiresIn.endsWith('d')) {
       expiresAt.setDate(expiresAt.getDate() + parseInt(expiresIn));
@@ -143,11 +109,7 @@ export class AuthService {
     });
 
     if (!stored || stored.revoked || stored.expiresAt < new Date()) {
-      throw new AppError(
-        401,
-        'INVALID_TOKEN',
-        'Refresh token expired or revoked',
-      );
+      throw new AppError(401, 'INVALID_TOKEN', 'Refresh token expired or revoked');
     }
 
     // 🔒 Revoke old token
@@ -159,15 +121,12 @@ export class AuthService {
     // 🔁 Generate new tokens
     const accessToken = this.generateAccessToken(payload.userId, payload.role);
 
-    const newRefreshToken = this.generateRefreshToken(
-      payload.userId,
-      payload.role,
-    );
+    const newRefreshToken = this.generateRefreshToken(payload.userId, payload.role);
 
     await this.saveRefreshToken(
       newRefreshToken,
       payload.userId,
-      process.env.JWT_REFRESH_EXPIRES_IN!,
+      process.env.JWT_REFRESH_EXPIRES_IN!
     );
 
     return {
