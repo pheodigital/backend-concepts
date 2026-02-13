@@ -1,5 +1,5 @@
 // src/infrastructure/sentry.ts
-import * as Sentry from '@sentry/node';
+/* import * as Sentry from '@sentry/node';
 
 export function initSentry() {
   if (!process.env.SENTRY_DSN) {
@@ -30,4 +30,4 @@ export function initSentry() {
   console.log('[sentry] initialized');
 }
 
-export { Sentry };
+export { Sentry }; */

@@ -61,7 +61,7 @@ jest.mock('../src/config/prisma', () => ({
 
 // ── 3. Mock Sentry globally ──────────────────────────────────────────────────
 // Prevents Sentry.init() from making outbound network calls on app startup.
-jest.mock('@sentry/node', () => ({
+/* jest.mock('@sentry/node', () => ({
   init: jest.fn(),
   captureException: jest.fn(),
   captureMessage: jest.fn(),
@@ -76,4 +76,4 @@ jest.mock('@sentry/node', () => ({
 jest.mock('@sentry-internal/node-cpu-profiler', () => ({
   startProfiling: jest.fn(),
   stopProfiling: jest.fn(),
-}));
+})); */

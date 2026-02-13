@@ -9,7 +9,7 @@ import Fastify, { FastifyError, FastifyInstance } from 'fastify';
 import { registerSwagger } from './common/swagger/swagger';
 
 import { env } from './config/env';
-import { Sentry } from './infrastructure/sentry';
+// import { Sentry } from './infrastructure/sentry';
 import { adminRoutesV1 } from './routes/v1/admin.routes';
 import { authRoutesV1 } from './routes/v1/auth.routes';
 import { taskRoutesV1 } from './routes/v1/task.routes';
@@ -19,16 +19,28 @@ function isFastifyError(error: unknown): error is FastifyError {
   return typeof error === 'object' && error !== null && 'message' in error;
 }
 
+export function setupFastifyErrorHandler(app: FastifyInstance) {
+  app.setErrorHandler((error, request, reply) => {
+    if (isFastifyError(error)) {
+      // Sentry.captureException(error);
+      reply.status(500).send({ message: error.message });
+    } else {
+      // Sentry.captureException(new Error(String(error)));
+      reply.status(500).send({ message: 'An unexpected error occurred' });
+    }
+  });
+}
+
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
     logger: true,
     requestTimeout: 10_000 /* Prevent requests from hanging forever. */,
   });
 
-  Sentry.setupFastifyErrorHandler(app);
+  setupFastifyErrorHandler(app);
 
   // 1️⃣ Sentry request context (runs for every request)
-  app.addHook('onRequest', request => {
+  /* app.addHook('onRequest', request => {
     Sentry.setContext('request', {
       method: request.method,
       url: request.url,
@@ -43,16 +55,15 @@ export async function buildApp(): Promise<FastifyInstance> {
         role: request.user.role,
       });
     }
-  });
+  }); */
 
   // 2️⃣ Global error handler (must be before routes)
-  app.setErrorHandler((error: FastifyError, request, reply) => {
+  /* app.setErrorHandler((error: FastifyError, request, reply) => {
     if (isFastifyError(error)) {
       const statusCode = error.statusCode ?? 500;
 
-      /**
-       * 🚦 Rate limit errors (EXPECTED)
-       */
+      // 🚦 Rate limit errors (EXPECTED)
+
       if (statusCode === 429 || error.code === 'FST_RATE_LIMIT') {
         Sentry.withScope(scope => {
           scope.setTag('type', 'rate_limit');
@@ -72,9 +83,8 @@ export async function buildApp(): Promise<FastifyInstance> {
         });
       }
 
-      /**
-       * ❌ Real application errors
-       */
+      // ❌ Real application errors
+
       Sentry.captureException(error);
 
       reply.status(statusCode).send({
@@ -83,7 +93,7 @@ export async function buildApp(): Promise<FastifyInstance> {
         message: error.message,
       });
     }
-  });
+  }); */
 
   // 🔐 Security headers (XSS, clickjacking, etc.)
   app.register(helmet);
@@ -91,18 +101,9 @@ export async function buildApp(): Promise<FastifyInstance> {
   // 🌍 CORS protection
   app.register(cors, {
     origin: (origin, cb) => {
-      // Allow non-browser tools (curl, postman)
-      if (!origin) {
-        cb(null, true);
-        return;
-      }
-
-      if (origin === env.FRONTEND_URL) {
-        cb(null, true);
-        return;
-      }
-
-      cb(new Error('Not allowed by CORS'), false);
+      if (!origin) cb(null, true);
+      else if (origin === env.FRONTEND_URL) cb(null, true);
+      else cb(new Error('Not allowed by CORS'), false);
     },
     credentials: true,
   });

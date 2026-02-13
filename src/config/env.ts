@@ -6,16 +6,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production'], {
     error: 'NODE_ENV is required and must be "development", "test", or "production"',
   }),
-  PORT: z
-    .string({
-      error: 'PORT is required',
-    })
-    .transform(val => {
-      const num = Number(val);
-      if (Number.isNaN(num)) throw new Error('PORT must be a number');
-      return num;
-    })
-    .default(3000),
+  PORT: z.preprocess(val => Number(val), z.number().default(3000)),
   FRONTEND_URL: z.string({
     error: 'FRONTEND_URL is required',
   }),

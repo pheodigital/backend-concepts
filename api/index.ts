@@ -1,17 +1,17 @@
 // api/index.ts
 import { IncomingMessage, ServerResponse } from 'http';
 import { buildApp } from '../src/app';
-import { initSentry } from '../src/infrastructure/sentry';
 
 let appInstance: Awaited<ReturnType<typeof buildApp>> | null = null;
 
+// getApp initializes the Fastify app on the first request and reuses the same instance for subsequent requests.
 async function getApp() {
   if (!appInstance) {
     console.log('[vercel] starting app...');
 
-    console.log('[vercel] calling initSentry...');
+    /* console.log('[vercel] calling initSentry...');
     initSentry();
-    console.log('[vercel] initSentry done');
+    console.log('[vercel] initSentry done'); */
 
     console.log('[vercel] calling buildApp...');
     appInstance = await buildApp();
