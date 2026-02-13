@@ -6,7 +6,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production'], {
     error: 'NODE_ENV is required and must be "development", "test", or "production"',
   }),
-  PORT: z.preprocess(val => Number(val), z.number().default(3000)),
+  PORT: z.preprocess(val => (val === undefined ? 3000 : Number(val)), z.number().int().positive()),
   FRONTEND_URL: z.string({
     error: 'FRONTEND_URL is required',
   }),
