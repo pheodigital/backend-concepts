@@ -114,7 +114,7 @@ curl -X GET http://localhost:3000/health
 
 Returns { "status": "ok" }
 
-Brute force & sentry
+Brute force
 for i in {1..10}; do
 curl -X POST http://localhost:3000/login \
  -H "Content-Type: application/json" \

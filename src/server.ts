@@ -2,12 +2,10 @@
 import 'dotenv/config';
 import { buildApp } from './app';
 import { env } from './config/env';
-// import { initSentry } from './infrastructure/sentry';
 
 async function startServer() {
   try {
-    // initSentry(); // Initialize Sentry before building the app to catch startup errors
-    const app = await buildApp();
+    const app = await buildApp({ enableRateLimit: true });
 
     await app.listen({
       port: env.PORT,

@@ -3,15 +3,12 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { buildApp } from '../src/app';
 
 let appInstance: Awaited<ReturnType<typeof buildApp>> | null = null;
+let appPromise: Promise<Awaited<ReturnType<typeof buildApp>>> | null = null;
 
 // getApp initializes the Fastify app on the first request and reuses the same instance for subsequent requests.
 async function getApp() {
   if (!appInstance) {
     console.log('[vercel] starting app...');
-
-    /* console.log('[vercel] calling initSentry...');
-    initSentry();
-    console.log('[vercel] initSentry done'); */
 
     console.log('[vercel] calling buildApp...');
     appInstance = await buildApp();
@@ -21,6 +18,16 @@ async function getApp() {
     await appInstance.ready();
     console.log('[vercel] ready done — app fully started');
   }
+
+  // prevents double-initialization on concurrent cold starts
+  if (!appPromise) {
+    appPromise = buildApp().then(async app => {
+      await app.ready();
+      appInstance = app;
+      return app;
+    });
+  }
+
   return appInstance;
 }
 
