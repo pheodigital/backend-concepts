@@ -45,6 +45,7 @@ export class AuthService {
       } as jwt.SignOptions // ✅ Cast options
     );
   }
+
   static generateRefreshToken(userId: string, role: 'USER' | 'ADMIN') {
     return jwt.sign({ userId, role }, process.env.JWT_REFRESH_SECRET as jwt.Secret, {
       expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN || '7d') as jwt.SignOptions['expiresIn'],
