@@ -6,7 +6,7 @@ export function errorHandler(
   _req: FastifyRequest,
   reply: FastifyReply
 ) {
-  // ✅ Known application errors
+  // ✅ Known application errors.
   if (error instanceof AppError) {
     return reply.status(error.statusCode).send({
       error: {
