@@ -64,7 +64,7 @@ export async function buildApp(opts?: { enableRateLimit?: boolean }): Promise<Fa
 
   // Health/root
 
-  app.get('/health', async (req, reply) => {
+  app.get('/health', async () => {
     return { status: 'ok', timestamp: new Date().toISOString() };
   });
 
