@@ -28,6 +28,7 @@ export default [
           tabWidth: 2,
           printWidth: 100,
           arrowParens: 'avoid',
+          endOfLine: 'lf',
         },
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
