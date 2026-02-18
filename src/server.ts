@@ -3,7 +3,8 @@ import 'dotenv/config';
 import { buildApp } from './app';
 import { env } from './config/env';
 
-// Start the server. In Fastify TS examples, this is done in a separate file to keep the app definition clean and focused on routes and plugins. [web:20][web:24]
+// Start the server. In Fastify TS examples,
+// this is done in a separate file to keep the app definition clean and focused on routes and plugins. [web:20][web:24]
 async function startServer() {
   try {
     const app = await buildApp({ enableRateLimit: true });
