@@ -35,6 +35,14 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Generate Prisma Client
         run: npx prisma generate
+      - name: Check Prettier
+        run: npm run format
+      - name: Check lint
+        run: npm run lint:ci        
+      - name: Check TypeScript
+        run: npm run typescript:check
+      - name: Unit test
+        run: npm run test
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
       - name: Pull Vercel environment
