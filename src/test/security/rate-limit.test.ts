@@ -44,7 +44,6 @@ describe.skip('Rate limiting', () => {
 
     // Return null → user not found → AuthService throws 401 immediately.
     // This skips argon2.verify (CPU-heavy) so each request resolves in <1ms.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (prisma.user.findUnique as jest.Mock<any>).mockResolvedValue(null);
   });
 

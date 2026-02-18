@@ -21,7 +21,7 @@ function isFastifyError(error: unknown): error is FastifyError {
 }
 
 export function setupFastifyErrorHandler(app: FastifyInstance) {
-  app.setErrorHandler((error, request, reply) => {
+  app.setErrorHandler((error, _request, reply) => {
     if (isFastifyError(error)) {
       reply.status(500).send({ message: error.message });
     } else {

@@ -3,7 +3,6 @@ import { TaskService } from '../../services/v1/task.service';
 import { TaskController } from './task.controller';
 
 // ✅ MANUAL ENUM - No Prisma dependency
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const TaskStatus: any = {
   TODO: 'TODO',
   IN_PROGRESS: 'IN_PROGRESS',
