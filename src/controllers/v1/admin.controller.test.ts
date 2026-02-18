@@ -1,4 +1,4 @@
-import { FastifyReply } from 'fastify';
+import type { FastifyReply } from 'fastify';
 import { prisma } from '../../config/prisma';
 import { AdminController } from './admin.controller';
 

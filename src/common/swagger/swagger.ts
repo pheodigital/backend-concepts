@@ -1,7 +1,7 @@
 // src/common/swagger/swagger.ts
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUI from '@fastify/swagger-ui';
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 
 // src/common/swagger/swagger.ts
 export async function registerSwagger(app: FastifyInstance) {

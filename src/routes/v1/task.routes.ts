@@ -1,5 +1,5 @@
 // src/routes/v1/task.routes.ts
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { TaskController } from '../../controllers/v1/task.controller';
 import { requireAuth } from '../../common/middleware/auth.middleware';
 import { validate } from '../../common/middleware/validator.middleware';

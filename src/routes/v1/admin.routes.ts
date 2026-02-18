@@ -1,5 +1,5 @@
 // src/routes/v1/admin.routes.ts
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { requireAuth } from '../../common/middleware/auth.middleware';
 import { requireRole } from '../../common/middleware/role.middleware';
 import { AdminUsersArraySchema } from '../../common/swagger/admin.schema';

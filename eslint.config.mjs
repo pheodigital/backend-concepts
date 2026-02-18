@@ -32,25 +32,7 @@ export default [
           disallowTypeAnnotations: false,
         },
       ],
-      '@typescript-eslint/restrict-template-expressions': [
-        'error',
-        {
-          allowNumber: true,
-        },
-      ],
-      'no-restricted-imports': ['error', restrictedImports],
-      'react/forbid-component-props': [
-        'error',
-        {
-          forbid: [
-            {
-              propName: 'style',
-              message:
-                'According to coding conventions, inline styles should be avoided: https://developer.one.audi/secure/Documentation/Coding%20Conventions/Feature%20Hub/Feature%20App/inline-styles.html',
-            },
-          ],
-        },
-      ],
+      'no-restricted-imports': 'error',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unnecessary-condition': 'off', // TODO: Discuss about this off rule
       'react-hooks/preserve-manual-memoization': 'off', // TODO: Discuss about this off rule

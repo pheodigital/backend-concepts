@@ -1,6 +1,6 @@
 // src/test/security/rate-limit.test.ts
 
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import request from 'supertest';
 import { createTestApp } from '../utils/test-app';
 

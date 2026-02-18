@@ -1,5 +1,5 @@
 // src/routes/v1/auth.routes.ts
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { requireAuth } from '../../common/middleware/auth.middleware';
 import { validate } from '../../common/middleware/validator.middleware';
 import {

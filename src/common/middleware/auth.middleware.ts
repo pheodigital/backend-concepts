@@ -1,6 +1,6 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import jwt from 'jsonwebtoken';
-import { JwtPayload } from '../../types/auth.types';
+import type { JwtPayload } from '../../types/auth.types';
 import { AppError } from '../errors/app-error';
 
 declare module 'fastify' {

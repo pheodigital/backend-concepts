@@ -1,7 +1,7 @@
 // src/services/v1/task.service.ts
-import { Prisma, TaskStatus } from '@prisma/client';
+import type { Prisma, TaskStatus } from '@prisma/client';
 import { prisma } from '../../config/prisma';
-import { UserContext } from '../../types/user-context';
+import type { UserContext } from '../../types/user-context';
 
 // const prisma = new PrismaClient();
 

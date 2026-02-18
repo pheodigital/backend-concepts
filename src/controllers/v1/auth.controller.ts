@@ -1,4 +1,4 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { AuthService } from '../../services/v1/auth.service';
 import { AppError } from '../../common/errors/app-error';
 

@@ -1,8 +1,8 @@
 // src/controllers/v1/task.controller.ts
-import { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { TaskService } from '../../services/v1/task.service';
-import { UserContext } from '../../types/user-context';
-import { TaskStatus } from '@prisma/client';
+import type { UserContext } from '../../types/user-context';
+import type { TaskStatus } from '@prisma/client';
 
 export class TaskController {
   private static getUser(req: FastifyRequest): UserContext {
