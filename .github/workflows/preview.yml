@@ -28,8 +28,14 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate # ← DATABASE_URL available from job env
 
-      - name: ESLint check
-        run: npm run lint
+      - name: Run linter
+        run: npm run lint:check
+
+      - name: Check TypeScript
+        run: npm run typescript:check
+
+      - name: Unit test
+        run: npm run test
 
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
