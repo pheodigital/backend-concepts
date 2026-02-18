@@ -1,66 +1,111 @@
-// eslint.config.mjs
-import typescriptEslint from '@typescript-eslint/eslint-plugin';
-import tsParser from '@typescript-eslint/parser';
-import prettier from 'eslint-plugin-prettier';
+import { FlatCompat } from '@eslint/eslintrc';
+import js from '@eslint/js';
+import prettierPlugin from 'eslint-plugin-prettier';
+import prettierConfig from 'eslint-config-prettier';
+import importPlugin from 'eslint-plugin-import';
+import nPlugin from 'eslint-plugin-n';
+import jestPlugin from 'eslint-plugin-jest';
+import securityPlugin from 'eslint-plugin-security';
+import globals from 'globals';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+});
 
 export default [
+  // ─── Global ignores ───────────────────────────────────────────────
   {
-    files: ['**/*.ts'],
+    ignores: ['node_modules/**', 'dist/**', 'build/**', 'coverage/**', '.nyc_output/**'],
+  },
+
+  // ─── Airbnb base ──────────────────────────────────────────────────
+  ...compat.extends('airbnb-base'),
+
+  // ─── Main source config ───────────────────────────────────────────
+  {
+    files: ['**/*.js', '**/*.mjs', '**/*.cjs'],
     plugins: {
-      '@typescript-eslint': typescriptEslint,
-      prettier,
+      prettier: prettierPlugin,
+      import: importPlugin,
+      n: nPlugin,
+      security: securityPlugin,
     },
     languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        ecmaVersion: 2020,
-        sourceType: 'module',
+      ecmaVersion: 2023,
+      sourceType: 'module', // change to 'commonjs' if you use require()
+      globals: {
+        ...globals.node,
+      },
+    },
+    settings: {
+      'import/resolver': {
+        node: {
+          extensions: ['.js', '.mjs', '.cjs', '.json'],
+        },
       },
     },
     rules: {
-      ...typescriptEslint.configs.recommended.rules,
-      '@typescript-eslint/no-unused-vars': [
+      // ── Prettier owns all formatting ──────────────────────────────
+      'prettier/prettier': 'error',
+
+      // ── Node ──────────────────────────────────────────────────────
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'n/no-process-exit': 'error',
+
+      // ── Airbnb overrides for Fastify ──────────────────────────────
+      'no-underscore-dangle': 'off',
+      'class-methods-use-this': 'off',
+      'import/prefer-default-export': 'off',
+      'no-restricted-syntax': ['error', 'LabeledStatement', 'WithStatement'],
+      'import/no-extraneous-dependencies': [
         'error',
         {
-          argsIgnorePattern: '^_',
+          devDependencies: [
+            '**/*.test.js',
+            '**/*.spec.js',
+            '**/tests/**',
+            'eslint.config.mjs', // ✅ allows devDeps in this file
+            '*.config.mjs',
+            '*.config.js',
+          ],
         },
       ],
-      '@typescript-eslint/consistent-type-imports': [
-        'warn',
-        {
-          prefer: 'type-imports',
-          disallowTypeAnnotations: false,
-        },
-      ],
-      'no-restricted-imports': 'error',
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unnecessary-condition': 'off', // TODO: Discuss about this off rule
-      'react-hooks/preserve-manual-memoization': 'off', // TODO: Discuss about this off rule
-      'react-hooks/set-state-in-effect': 'off', // TODO: Discuss about this off rule
-      'react-hooks/rules-of-hooks': 'off', // TODO: Discuss about this off rule
-      '@typescript-eslint/no-unsafe-assignment': 'off', // TODO: Discuss about this off rule
-      '@typescript-eslint/no-unsafe-member-access': 'off',
-      '@typescript-eslint/no-unsafe-return': 'off',
-      '@typescript-eslint/no-require-imports': 'off',
-      '@typescript-eslint/no-floating-promises': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
-      '@typescript-eslint/no-non-null-assertion': 'warn',
-      '@typescript-eslint/no-explicit-any': 'warn',
-      'prettier/prettier': [
-        'warn',
-        {
-          semi: true,
-          singleQuote: true,
-          trailingComma: 'es5',
-          tabWidth: 2,
-          printWidth: 100,
-          arrowParens: 'avoid',
-          endOfLine: 'lf',
-        },
-      ],
+
+      // ── Security ──────────────────────────────────────────────────
+      'security/detect-object-injection': 'warn',
+      'security/detect-non-literal-fs-filename': 'warn',
     },
   },
+
+  // ─── Jest / Supertest test files ──────────────────────────────────
   {
-    ignores: ['dist/**', 'node_modules/**', '.vercel/**'],
+    files: ['**/*.test.js', '**/*.spec.js', '**/tests/**/*.js', '**/__tests__/**/*.js'],
+    plugins: {
+      jest: jestPlugin,
+    },
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.jest,
+      },
+    },
+    rules: {
+      ...jestPlugin.configs.recommended.rules,
+      'jest/no-focused-tests': 'error',
+      'jest/no-disabled-tests': 'warn',
+      'jest/expect-expect': 'error',
+      'jest/valid-expect': 'error',
+      'no-await-in-loop': 'off',
+      'import/no-extraneous-dependencies': 'off',
+    },
   },
+
+  // ─── Prettier must be last ─────────────────────────────────────────
+  prettierConfig,
 ];
