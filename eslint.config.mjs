@@ -19,7 +19,17 @@ export default [
     },
     rules: {
       ...typescriptEslint.configs.recommended.rules,
-      'prettier/prettier': 'error',
+      'prettier/prettier': [
+        'error',
+        {
+          semi: true,
+          singleQuote: true,
+          trailingComma: 'es5',
+          tabWidth: 2,
+          printWidth: 100,
+          arrowParens: 'avoid',
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
     },

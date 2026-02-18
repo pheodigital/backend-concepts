@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "lint": "ESLINT_USE_FLAT_CONFIG=true eslint \"src/**/*.ts\"",
+    "lint:check": "eslint .",
     "lint:fix": "ESLINT_USE_FLAT_CONFIG=true eslint \"src/**/*.ts\" --fix",
     "format": "prettier --write \"**/*.{ts,tsx,json,js,jsx,mjs,html,yml,md,mdx}\" \"!**/dist/**\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,js,jsx,mjs,html,yml,md,mdx}\" \"!**/dist/**\" \"!**/docs/**\"",
