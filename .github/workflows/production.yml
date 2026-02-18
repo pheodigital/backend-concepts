@@ -29,7 +29,7 @@ jobs:
         run: npx prisma generate # ← DATABASE_URL available from job env
 
       - name: Run linter
-        run: npm run lint:check
+        run: npm run lint:ci
 
       - name: Check TypeScript
         run: npm run typescript:check
