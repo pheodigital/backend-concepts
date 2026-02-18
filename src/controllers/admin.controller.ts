@@ -6,6 +6,8 @@ export class AdminController {
    * List all users (Admin only)
    */
   static async listUsers(_req: FastifyRequest, reply: FastifyReply) {
+    console.log('## ##');
+    
     const users = await prisma.user.findMany({
       select: {
         id: true,
