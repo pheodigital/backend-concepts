@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { UserContext } from '../../types/user-context';
 import { TaskService } from './task.service';
 
+import { prisma } from '../../config/prisma';
+
 // ✅ MANUAL ENUM - No Prisma dependency
 const TaskStatus: any = {
   TODO: 'TODO',
@@ -49,10 +51,10 @@ describe('TaskService', () => {
 
   describe('list', () => {
     it('should return paginated tasks with defaults', async () => {
-      const mockPrisma = require('../../config/prisma').prisma;
+      const mockPrisma = prisma;
 
-      mockPrisma.task.findMany.mockImplementation(() => Promise.resolve([mockTask]));
-      mockPrisma.task.count.mockImplementation(() => Promise.resolve(25));
+      (mockPrisma.task.findMany as jest.Mock).mockImplementation(() => Promise.resolve([mockTask]));
+      (mockPrisma.task.count as jest.Mock).mockImplementation(() => Promise.resolve(25));
 
       const result = await TaskService.list(mockUser);
 
@@ -71,10 +73,10 @@ describe('TaskService', () => {
     });
 
     it('should filter by status', async () => {
-      const mockPrisma = require('../../config/prisma').prisma;
+      const mockPrisma = prisma;
 
-      mockPrisma.task.findMany.mockImplementation(() => Promise.resolve([mockTask]));
-      mockPrisma.task.count.mockImplementation(() => Promise.resolve(1));
+      (mockPrisma.task.findMany as jest.Mock).mockImplementation(() => Promise.resolve([mockTask]));
+      (mockPrisma.task.count as jest.Mock).mockImplementation(() => Promise.resolve(1));
 
       await TaskService.list(mockUser, 1, 10, TaskStatus.IN_PROGRESS);
 
@@ -88,9 +90,9 @@ describe('TaskService', () => {
 
   describe('create', () => {
     it('should create with default TODO status', async () => {
-      const mockPrisma = require('../../config/prisma').prisma;
+      const mockPrisma = prisma;
 
-      mockPrisma.task.create.mockImplementation(() => Promise.resolve(mockTask));
+      (mockPrisma.task.create as jest.Mock).mockImplementation(() => Promise.resolve(mockTask));
 
       const result = await TaskService.create({ title: 'New Task' }, mockUser);
 
@@ -107,9 +109,9 @@ describe('TaskService', () => {
 
   describe('getById', () => {
     it('should return owned task', async () => {
-      const mockPrisma = require('../../config/prisma').prisma;
+      const mockPrisma = prisma;
 
-      mockPrisma.task.findFirst.mockImplementation(() => Promise.resolve(mockTask));
+      (mockPrisma.task.findFirst as jest.Mock).mockImplementation(() => Promise.resolve(mockTask));
 
       const result = await TaskService.getById('task-123', mockUser);
 
@@ -119,9 +121,11 @@ describe('TaskService', () => {
 
   describe('update', () => {
     it('should update owned task', async () => {
-      const mockPrisma = require('../../config/prisma').prisma;
+      const mockPrisma = prisma;
 
-      mockPrisma.task.updateMany.mockImplementation(() => Promise.resolve({ count: 1 }));
+      (mockPrisma.task.updateMany as jest.Mock).mockImplementation(() =>
+        Promise.resolve({ count: 1 })
+      );
 
       const result = await TaskService.update('task-123', { title: 'Updated' }, mockUser);
 
@@ -131,9 +135,11 @@ describe('TaskService', () => {
 
   describe('delete', () => {
     it('should delete owned task', async () => {
-      const mockPrisma = require('../../config/prisma').prisma;
+      const mockPrisma = prisma;
 
-      mockPrisma.task.deleteMany.mockImplementation(() => Promise.resolve({ count: 1 }));
+      (mockPrisma.task.deleteMany as jest.Mock).mockImplementation(() =>
+        Promise.resolve({ count: 1 })
+      );
 
       const result = await TaskService.delete('task-123', mockUser);
 

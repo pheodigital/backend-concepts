@@ -31,22 +31,9 @@ export class TaskController {
       order?: 'asc' | 'desc';
     };
 
-    const {
-      page = 1,
-      limit = 10,
-      status,
-      sort = 'createdAt',
-      order = 'desc',
-    } = query;
+    const { page = 1, limit = 10, status, sort = 'createdAt', order = 'desc' } = query;
 
-    const result = await TaskService.list(
-      this.getUser(req),
-      page,
-      limit,
-      status,
-      sort,
-      order,
-    );
+    const result = await TaskService.list(this.getUser(req), page, limit, status, sort, order);
     return reply.send(result);
   }
 
