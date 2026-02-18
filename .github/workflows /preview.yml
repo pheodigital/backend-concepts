@@ -1,54 +1,55 @@
 name: Vercel Preview Deployment
-
 on:
   pull_request:
     branches: [main]
-
 jobs:
   deploy-preview:
     runs-on: ubuntu-latest
-    environment: Preview # ← CRITICAL: Use Preview environment secrets
+    environment: Preview
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: backend_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }} # Preview env secret injected here
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci --ignore-scripts
-
       - name: Generate Prisma Client
-        run: npx prisma generate # ← DATABASE_URL available from job env
-
+        run: npx prisma generate
       - name: Check TypeScript
         run: npm run typescript:check
-
       - name: Unit test
         run: npm run test
-
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
-
       - name: Pull Vercel environment
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-
       - name: Build
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-
       - name: Deploy Preview
         id: deploy
         run: |
           url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "preview_url=$url" >> $GITHUB_OUTPUT
-
       - name: Comment PR with Preview URL
         uses: actions/github-script@v7
         with:
