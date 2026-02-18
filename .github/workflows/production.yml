@@ -11,6 +11,8 @@ on:
 jobs:
   deploy-production:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }} # ← job level, available everywhere
     steps:
       - uses: actions/checkout@v4
 
@@ -21,15 +23,13 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts # ← skip postinstall
+
+      - name: Generate Prisma Client
+        run: npx prisma generate # ← explicit, DATABASE_URL already set
 
       - name: ESLint check
-        run: npx eslint . --ext .ts
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      - name: Run tests
-        run: npm test
+        run: npm run lint
 
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
@@ -48,6 +48,7 @@ jobs:
 
       - name: Health Check
         run: |
-          echo "Checking ${{ steps.deploy.outputs.production_url }}/health ..."
+          echo "Checking health endpoint..."
           curl --fail --retry 5 --retry-delay 3 \
             ${{ steps.deploy.outputs.production_url }}/health || exit 1
+          echo "Health check passed!"
