@@ -1,4 +1,3 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { FastifyReply } from 'fastify';
 import { prisma } from '../../config/prisma';
 import { AdminController } from './admin.controller';
