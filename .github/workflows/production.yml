@@ -38,7 +38,7 @@ jobs:
       - name: Check Prettier
         run: npm run format
       - name: Check lint
-        run: npm run lint:ci        
+        run: npm run lint:ci
       - name: Check TypeScript
         run: npm run typescript:check
       - name: Unit test
