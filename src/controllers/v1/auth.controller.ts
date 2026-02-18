@@ -1,6 +1,6 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-import { AuthService } from '../../services/v1/auth.service';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { AppError } from '../../common/errors/app-error';
+import { AuthService } from '../../services/v1/auth.service';
 
 export class AuthController {
   // ✅ Register a new user
@@ -27,8 +27,15 @@ export class AuthController {
 
     const { user, token: accessToken, refreshToken } = await AuthService.login(email, password);
 
+    if (!process?.env?.JWT_REFRESH_EXPIRES_IN) {
+      throw new AppError(
+        500,
+        'CONFIG_ERROR',
+        'Missing JWT_REFRESH_EXPIRES_IN in environment variables'
+      );
+    }
     // Store refresh token in DB
-    await AuthService.saveRefreshToken(refreshToken, user.id, process.env.JWT_REFRESH_EXPIRES_IN!);
+    await AuthService.saveRefreshToken(refreshToken, user.id, process.env.JWT_REFRESH_EXPIRES_IN);
 
     return reply.send({
       token: accessToken,
