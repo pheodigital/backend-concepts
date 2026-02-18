@@ -1,4 +1,3 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { AppError } from '../../common/errors/app-error';
 import { prisma } from '../../config/prisma';
 import { UserService } from './user.service';
