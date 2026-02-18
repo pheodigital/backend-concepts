@@ -1,4 +1,4 @@
-1️⃣ Auth Routes
+1️⃣ Auth Routes.
 Register (USER)
 curl -X POST http://localhost:3000/register \
  -H "Content-Type: application/json" \
