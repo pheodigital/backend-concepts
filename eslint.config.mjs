@@ -17,6 +17,12 @@ export default [
         sourceType: 'module',
       },
     },
+    extends: [
+      'eslint:recommended',
+      'plugin:@typescript-eslint/recommended',
+      'plugin:prettier/recommended',
+      'prettier',
+    ],
     rules: {
       ...typescriptEslint.configs.recommended.rules,
       'prettier/prettier': 'error',
