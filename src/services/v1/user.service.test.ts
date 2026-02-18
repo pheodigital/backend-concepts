@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { AppError } from '../../common/errors/app-error';
+import { prisma } from '../../config/prisma';
 import { UserService } from './user.service';
 
 // ✅ Reuse same Prisma mock pattern that worked for TaskService
@@ -17,7 +18,7 @@ jest.mock('../../config/prisma', () => {
 });
 
 describe('UserService', () => {
-  const mockPrisma = require('../../config/prisma').prisma;
+  const mockPrisma = prisma;
 
   const mockUser = {
     id: 'user-123',
@@ -47,7 +48,7 @@ describe('UserService', () => {
 
   describe('getAllUsers', () => {
     it('should return all users with selected fields', async () => {
-      mockPrisma.user.findMany.mockImplementation(() => Promise.resolve(mockUsers));
+      (mockPrisma.user.findMany as jest.Mock).mockImplementation(() => Promise.resolve(mockUsers));
 
       const result = await UserService.getAllUsers();
 
@@ -60,7 +61,7 @@ describe('UserService', () => {
     });
 
     it('should return empty array when no users exist', async () => {
-      mockPrisma.user.findMany.mockImplementation(() => Promise.resolve([]));
+      (mockPrisma.user.findMany as jest.Mock).mockImplementation(() => Promise.resolve([]));
 
       const result = await UserService.getAllUsers();
 
@@ -70,7 +71,7 @@ describe('UserService', () => {
 
   describe('getUserById', () => {
     it('should return user when found', async () => {
-      mockPrisma.user.findUnique.mockImplementation(() => Promise.resolve(mockUser));
+      (mockPrisma.user.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(mockUser));
 
       const result = await UserService.getUserById('user-123');
 
@@ -82,7 +83,7 @@ describe('UserService', () => {
     });
 
     it('should throw USER_NOT_FOUND error when user does not exist', async () => {
-      mockPrisma.user.findUnique.mockImplementation(() => Promise.resolve(null));
+      (mockPrisma.user.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(null));
 
       await expect(UserService.getUserById('user-999')).rejects.toThrow(
         new AppError(404, 'USER_NOT_FOUND', 'User not found')
@@ -95,7 +96,7 @@ describe('UserService', () => {
     });
 
     it('should select only specified fields', async () => {
-      mockPrisma.user.findUnique.mockImplementation(() => Promise.resolve(mockUser));
+      (mockPrisma.user.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(mockUser));
 
       await UserService.getUserById('user-123');
 
@@ -110,7 +111,7 @@ describe('UserService', () => {
   describe('error handling', () => {
     it('should handle database errors gracefully', async () => {
       const mockError = new Error('Database connection failed');
-      mockPrisma.user.findUnique.mockImplementation(() => Promise.reject(mockError));
+      (mockPrisma.user.findUnique as jest.Mock).mockImplementation(() => Promise.reject(mockError));
 
       await expect(UserService.getUserById('user-123')).rejects.toThrow(
         'Database connection failed'

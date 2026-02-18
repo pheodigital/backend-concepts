@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { FastifyReply } from 'fastify';
+import { prisma } from '../../config/prisma';
 import { AdminController } from './admin.controller';
 
 // Mock Prisma
@@ -11,7 +12,7 @@ jest.mock('../../config/prisma', () => ({
   },
 }));
 
-const mockPrisma = require('../../config/prisma').prisma;
+const mockPrisma = prisma;
 
 describe('AdminController', () => {
   let mockReply: jest.Mocked<Partial<FastifyReply>>;
@@ -44,7 +45,7 @@ describe('AdminController', () => {
         },
       ];
 
-      mockPrisma.user.findMany.mockImplementation(() => Promise.resolve(mockUsers));
+      (mockPrisma.user.findMany as jest.Mock).mockImplementation(() => Promise.resolve(mockUsers));
 
       await AdminController.listUsers({} as any, mockReply as FastifyReply);
 
@@ -61,7 +62,7 @@ describe('AdminController', () => {
     });
 
     it('should return empty array when no users exist', async () => {
-      mockPrisma.user.findMany.mockImplementation(() => Promise.resolve([]));
+      (mockPrisma.user.findMany as jest.Mock).mockImplementation(() => Promise.resolve([]));
 
       await AdminController.listUsers({} as any, mockReply as FastifyReply);
 
@@ -70,7 +71,7 @@ describe('AdminController', () => {
 
     it('should handle database errors gracefully', async () => {
       const mockError = new Error('Database connection failed');
-      mockPrisma.user.findMany.mockImplementation(() => Promise.reject(mockError));
+      (mockPrisma.user.findMany as jest.Mock).mockImplementation(() => Promise.reject(mockError));
 
       await expect(AdminController.listUsers({} as any, mockReply as FastifyReply)).rejects.toThrow(
         'Database connection failed'

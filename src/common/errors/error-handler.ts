@@ -4,7 +4,7 @@ import { AppError } from './app-error';
 export function errorHandler(
   error: FastifyError | AppError,
   _req: FastifyRequest,
-  reply: FastifyReply,
+  reply: FastifyReply
 ) {
   // ✅ Known application errors
   if (error instanceof AppError) {

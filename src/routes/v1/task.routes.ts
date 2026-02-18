@@ -17,7 +17,7 @@ import {
 } from '../../common/swagger/task.schema';
 
 export async function taskRoutesV1(app: FastifyInstance) {
-  app.register(async (instance) => {
+  app.register(async instance => {
     instance.addHook('preHandler', requireAuth);
 
     // GET /tasks - paginated list
@@ -49,7 +49,7 @@ export async function taskRoutesV1(app: FastifyInstance) {
           security: [{ bearerAuth: [] }],
         },
       },
-      TaskController.getTasks,
+      TaskController.getTasks
     );
 
     // POST /tasks - create
@@ -76,7 +76,7 @@ export async function taskRoutesV1(app: FastifyInstance) {
           security: [{ bearerAuth: [] }],
         },
       },
-      TaskController.createTask,
+      TaskController.createTask
     );
 
     // GET /tasks/:id
@@ -95,17 +95,14 @@ export async function taskRoutesV1(app: FastifyInstance) {
           security: [{ bearerAuth: [] }],
         },
       },
-      TaskController.getTaskById,
+      TaskController.getTaskById
     );
 
     // PUT /tasks/:id
     instance.put(
       '/tasks/:id',
       {
-        preHandler: [
-          validate(taskIdParamSchema, 'params'),
-          validate(updateTaskSchema, 'body'),
-        ],
+        preHandler: [validate(taskIdParamSchema, 'params'), validate(updateTaskSchema, 'body')],
         schema: {
           tags: ['Tasks'],
           summary: 'Update a task by ID',
@@ -125,7 +122,7 @@ export async function taskRoutesV1(app: FastifyInstance) {
           security: [{ bearerAuth: [] }],
         },
       },
-      TaskController.updateTask,
+      TaskController.updateTask
     );
 
     // DELETE /tasks/:id
@@ -144,7 +141,7 @@ export async function taskRoutesV1(app: FastifyInstance) {
           security: [{ bearerAuth: [] }],
         },
       },
-      TaskController.deleteTask,
+      TaskController.deleteTask
     );
   });
 }

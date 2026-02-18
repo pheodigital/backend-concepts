@@ -25,18 +25,10 @@ export class AuthController {
   static async login(req: FastifyRequest, reply: FastifyReply) {
     const { email, password } = req.body as { email: string; password: string };
 
-    const {
-      user,
-      token: accessToken,
-      refreshToken,
-    } = await AuthService.login(email, password);
+    const { user, token: accessToken, refreshToken } = await AuthService.login(email, password);
 
     // Store refresh token in DB
-    await AuthService.saveRefreshToken(
-      refreshToken,
-      user.id,
-      process.env.JWT_REFRESH_EXPIRES_IN!,
-    );
+    await AuthService.saveRefreshToken(refreshToken, user.id, process.env.JWT_REFRESH_EXPIRES_IN!);
 
     return reply.send({
       token: accessToken,

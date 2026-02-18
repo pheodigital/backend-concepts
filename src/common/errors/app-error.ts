@@ -3,12 +3,7 @@ export class AppError extends Error {
   public readonly code: string;
   public readonly details?: any; // <--- optional
 
-  constructor(
-    statusCode: number,
-    code: string,
-    message: string,
-    details?: any,
-  ) {
+  constructor(statusCode: number, code: string, message: string, details?: any) {
     super(message); // Sets the Error.message
     this.statusCode = statusCode;
     this.code = code;

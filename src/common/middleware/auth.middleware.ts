@@ -1,7 +1,7 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import jwt from 'jsonwebtoken';
-import { AppError } from '../errors/app-error';
 import { JwtPayload } from '../../types/auth.types';
+import { AppError } from '../errors/app-error';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -23,10 +23,7 @@ export async function requireAuth(req: FastifyRequest, _reply: FastifyReply) {
   }
 
   try {
-    const payload = jwt.verify(
-      token,
-      process.env.JWT_ACCESS_SECRET!,
-    ) as JwtPayload;
+    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as JwtPayload;
 
     req.user = payload;
   } catch {
