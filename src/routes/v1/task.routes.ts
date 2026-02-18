@@ -16,8 +16,15 @@ import {
   taskIdParamsJsonSchema,
 } from '../../common/swagger/task.schema';
 
+// Define the param type for type safety
+interface TaskIdParams {
+  Params: {
+    id: string;
+  };
+}
+
 export async function taskRoutesV1(app: FastifyInstance) {
-  app.register(async instance => {
+  app.register(async (instance) => {
     instance.addHook('preHandler', requireAuth);
 
     // GET /tasks - paginated list
@@ -49,7 +56,7 @@ export async function taskRoutesV1(app: FastifyInstance) {
           security: [{ bearerAuth: [] }],
         },
       },
-      TaskController.getTasks
+      TaskController.getTasks,
     );
 
     // POST /tasks - create
@@ -76,11 +83,11 @@ export async function taskRoutesV1(app: FastifyInstance) {
           security: [{ bearerAuth: [] }],
         },
       },
-      TaskController.createTask
+      TaskController.createTask,
     );
 
-    // GET /tasks/:id
-    instance.get(
+    // GET /tasks/:id - Fixed with explicit typing
+    instance.get<TaskIdParams>(
       '/tasks/:id',
       {
         preHandler: [validate(taskIdParamSchema, 'params')],
@@ -95,11 +102,11 @@ export async function taskRoutesV1(app: FastifyInstance) {
           security: [{ bearerAuth: [] }],
         },
       },
-      TaskController.getTaskById
+      TaskController.getTaskById,
     );
 
-    // PUT /tasks/:id
-    instance.put(
+    // PUT /tasks/:id - Fixed with explicit typing
+    instance.put<TaskIdParams>(
       '/tasks/:id',
       {
         preHandler: [validate(taskIdParamSchema, 'params'), validate(updateTaskSchema, 'body')],
@@ -122,11 +129,11 @@ export async function taskRoutesV1(app: FastifyInstance) {
           security: [{ bearerAuth: [] }],
         },
       },
-      TaskController.updateTask
+      TaskController.updateTask,
     );
 
-    // DELETE /tasks/:id
-    instance.delete(
+    // DELETE /tasks/:id - Fixed with explicit typing
+    instance.delete<TaskIdParams>(
       '/tasks/:id',
       {
         preHandler: [validate(taskIdParamSchema, 'params')],
@@ -141,7 +148,7 @@ export async function taskRoutesV1(app: FastifyInstance) {
           security: [{ bearerAuth: [] }],
         },
       },
-      TaskController.deleteTask
+      TaskController.deleteTask,
     );
   });
 }

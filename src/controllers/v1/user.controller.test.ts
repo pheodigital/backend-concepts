@@ -2,6 +2,13 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import { UserService } from '../../services/v1/user.service';
 import { UserController } from './user.controller';
 
+// Define UserIdParams interface locally for test (same as routes)
+interface UserIdParams {
+  Params: {
+    id: string;
+  };
+}
+
 jest.mock('../../services/v1/user.service');
 
 describe('UserController', () => {
@@ -32,9 +39,11 @@ describe('UserController', () => {
   describe('getUserById', () => {
     it('should return user by id', async () => {
       const mockUser = { id: '1', name: 'User 1' };
-      const requestWithParams = {
+
+      // Properly typed mock request matching UserIdParams
+      const requestWithParams: FastifyRequest<UserIdParams> = {
         params: { id: '1' },
-      } as unknown as FastifyRequest;
+      } as FastifyRequest<UserIdParams>;
 
       (UserService.getUserById as jest.Mock).mockResolvedValue(mockUser);
 
