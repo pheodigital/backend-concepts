@@ -1,4 +1,4 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { TaskService } from '../../services/v1/task.service';
 import { TaskController } from './task.controller';
 

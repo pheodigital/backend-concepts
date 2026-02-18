@@ -1,4 +1,4 @@
-import { FastifyRequest } from 'fastify';
+import type { FastifyRequest } from 'fastify';
 import { AppError } from '../errors/app-error';
 
 export const requireRole = (role: 'ADMIN' | 'USER') => async (req: FastifyRequest) => {

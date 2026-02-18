@@ -1,4 +1,4 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { UserService } from '../../services/v1/user.service';
 import { UserController } from './user.controller';
 

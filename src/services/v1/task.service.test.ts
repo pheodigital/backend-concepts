@@ -1,4 +1,4 @@
-import { UserContext } from '../../types/user-context';
+import type { UserContext } from '../../types/user-context';
 import { TaskService } from './task.service';
 
 import { prisma } from '../../config/prisma';

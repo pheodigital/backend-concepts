@@ -4,7 +4,8 @@ import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 
-import Fastify, { FastifyError, FastifyInstance } from 'fastify';
+import type { FastifyError, FastifyInstance } from 'fastify';
+import Fastify from 'fastify';
 
 import { registerSwagger } from './common/swagger/swagger';
 
