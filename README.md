@@ -204,7 +204,7 @@ Understanding deployment and operational concerns.
 
 ## 13. Distributed Systems (Advanced)
 
-Building systems at scale.
+Building systems at scale..
 
 - **Monolith vs Microservices** - Trade-offs in system architecture
 - **CAP Theorem** - Consistency, Availability, Partition Tolerance trade-offs
