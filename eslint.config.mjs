@@ -19,8 +19,53 @@ export default [
     },
     rules: {
       ...typescriptEslint.configs.recommended.rules,
-      'prettier/prettier': [
+      '@typescript-eslint/no-unused-vars': [
         'error',
+        {
+          argsIgnorePattern: '^_',
+        },
+      ],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          prefer: 'type-imports',
+          disallowTypeAnnotations: false,
+        },
+      ],
+      '@typescript-eslint/restrict-template-expressions': [
+        'error',
+        {
+          allowNumber: true,
+        },
+      ],
+      'no-restricted-imports': ['error', restrictedImports],
+      'react/forbid-component-props': [
+        'error',
+        {
+          forbid: [
+            {
+              propName: 'style',
+              message:
+                'According to coding conventions, inline styles should be avoided: https://developer.one.audi/secure/Documentation/Coding%20Conventions/Feature%20Hub/Feature%20App/inline-styles.html',
+            },
+          ],
+        },
+      ],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unnecessary-condition': 'off', // TODO: Discuss about this off rule
+      'react-hooks/preserve-manual-memoization': 'off', // TODO: Discuss about this off rule
+      'react-hooks/set-state-in-effect': 'off', // TODO: Discuss about this off rule
+      'react-hooks/rules-of-hooks': 'off', // TODO: Discuss about this off rule
+      '@typescript-eslint/no-unsafe-assignment': 'off', // TODO: Discuss about this off rule
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+      '@typescript-eslint/no-floating-promises': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      'prettier/prettier': [
+        'warn',
         {
           semi: true,
           singleQuote: true,
@@ -31,8 +76,6 @@ export default [
           endOfLine: 'lf',
         },
       ],
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': 'warn',
     },
   },
   {
