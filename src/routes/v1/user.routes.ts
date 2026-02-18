@@ -12,15 +12,20 @@ import {
 import { UserController } from '../../controllers/v1/user.controller';
 import { getUserParamsSchema } from '../../validators/user.validator';
 
+// Define the param type for type safety
+interface UserIdParams {
+  Params: {
+    id: string;
+  };
+}
+
 export async function userRoutesV1(app: FastifyInstance) {
   // Encapsulate routes under a plugin scope so hooks do not bleed globally.
-  // If you register this with app.register(userRoutesV1, { prefix: '/api/v1' })
-  // then everything here inherits that prefix.
-  app.register(async instance => {
+  app.register(async (instance) => {
     // Auth for all user routes
     instance.addHook('preHandler', requireAuth);
 
-    // GET /users - Admin only
+    // GET /users - Admin only (no params, no typing needed)
     instance.get(
       '/users',
       {
@@ -36,11 +41,11 @@ export async function userRoutesV1(app: FastifyInstance) {
           },
         },
       },
-      UserController.getAllUsers
+      UserController.getAllUsers,
     );
 
-    // GET /users/:id - param validation
-    instance.get(
+    // GET /users/:id - Fixed with explicit typing
+    instance.get<UserIdParams>(
       '/users/:id',
       {
         preHandler: [validate(getUserParamsSchema, 'params')],
@@ -56,7 +61,7 @@ export async function userRoutesV1(app: FastifyInstance) {
           },
         },
       },
-      UserController.getUserById
+      UserController.getUserById,
     );
   });
 }

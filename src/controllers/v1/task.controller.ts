@@ -4,6 +4,12 @@ import { TaskService } from '../../services/v1/task.service';
 import type { UserContext } from '../../types/user-context';
 import type { TaskStatus } from '@prisma/client';
 
+
+// Define param types for routes that use ID
+interface TaskIdParams {
+  id: string;
+}
+
 export class TaskController {
   private static getUser(req: FastifyRequest): UserContext {
     return {
@@ -37,14 +43,14 @@ export class TaskController {
     return reply.send(result);
   }
 
-  static async getTaskById(req: FastifyRequest, reply: FastifyReply) {
-    const { id } = req.params as { id: string };
+  static async getTaskById(req: FastifyRequest<{ Params: TaskIdParams }>, reply: FastifyReply) {
+    const { id } = req.params;
     const task = await TaskService.getById(id, this.getUser(req));
     return reply.send(task);
   }
 
-  static async updateTask(req: FastifyRequest, reply: FastifyReply) {
-    const { id } = req.params as { id: string };
+  static async updateTask(req: FastifyRequest<{ Params: TaskIdParams }>, reply: FastifyReply) {
+    const { id } = req.params;
     const body = req.body as {
       title?: string;
       description?: string;
@@ -54,8 +60,8 @@ export class TaskController {
     return reply.send(task);
   }
 
-  static async deleteTask(req: FastifyRequest, reply: FastifyReply) {
-    const { id } = req.params as { id: string };
+  static async deleteTask(req: FastifyRequest<{ Params: TaskIdParams }>, reply: FastifyReply) {
+    const { id } = req.params;
     await TaskService.delete(id, this.getUser(req));
     return reply.status(204).send();
   }
