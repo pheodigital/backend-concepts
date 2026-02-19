@@ -6,6 +6,16 @@ This repository serves as a **practical reference** for modern backend developme
 
 ---
 
+## 📄 Documentation
+
+| Document | Description |
+|---|---|
+| [README.md](./README.md) | Project overview, tech stack, and concept reference |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | Visual diagrams — system overview, request flows, ERD, Docker layout |
+| [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) | Deep-dive into design decisions, trade-offs, capacity, and scalability |
+
+---
+
 ## 📚 Overview
 
 This backend follows clean architectural principles and showcases:
