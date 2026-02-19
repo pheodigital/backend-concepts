@@ -2,7 +2,7 @@
   https://backend-concepts-git-main-arun-kumars-projects-de09d0d4.vercel.app/docs
 
 # Starting the app
-  steps goes here...
+  steps goes here..
 
 # Backend Development – Core Concepts Repository
 
