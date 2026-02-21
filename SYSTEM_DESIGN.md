@@ -35,14 +35,14 @@ A deep-dive into the architectural decisions, trade-offs, and design patterns be
 
 ### Non-Functional Requirements
 
-| Requirement | Target |
-|---|---|
-| **Availability** | 99.9% uptime |
-| **Latency** | p95 < 200ms per API call |
-| **Security** | OWASP Top 10 mitigations |
-| **Scalability** | Horizontally scalable app tier |
-| **Observability** | Structured logging, health endpoint |
-| **Developer Experience** | Type-safe, well-tested, documented |
+| Requirement              | Target                              |
+| ------------------------ | ----------------------------------- |
+| **Availability**         | 99.9% uptime                        |
+| **Latency**              | p95 < 200ms per API call            |
+| **Security**             | OWASP Top 10 mitigations            |
+| **Scalability**          | Horizontally scalable app tier      |
+| **Observability**        | Structured logging, health endpoint |
+| **Developer Experience** | Type-safe, well-tested, documented  |
 
 ### Out of Scope (for this reference implementation)
 
@@ -98,6 +98,7 @@ https://api.yourdomain.com/api/v1
 ### Versioning Strategy
 
 URI versioning (`/api/v1`) was chosen over header versioning for:
+
 - Discoverability (visible in browser / logs)
 - Simplicity for consumers
 - Easy routing separation in Fastify
@@ -106,35 +107,36 @@ URI versioning (`/api/v1`) was chosen over header versioning for:
 
 #### Auth
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| `POST` | `/auth/register` | None | Create new user account |
-| `POST` | `/auth/login` | None | Authenticate and receive tokens |
-| `POST` | `/auth/refresh` | Refresh Token | Issue new access token |
-| `POST` | `/auth/logout` | Bearer | Invalidate refresh token |
+| Method | Path             | Auth          | Description                     |
+| ------ | ---------------- | ------------- | ------------------------------- |
+| `POST` | `/auth/register` | None          | Create new user account         |
+| `POST` | `/auth/login`    | None          | Authenticate and receive tokens |
+| `POST` | `/auth/refresh`  | Refresh Token | Issue new access token          |
+| `POST` | `/auth/logout`   | Bearer        | Invalidate refresh token        |
 
 #### Users
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| `GET` | `/users/me` | Bearer | Get current user profile |
-| `PATCH` | `/users/me` | Bearer | Update current user |
-| `GET` | `/users` | Admin | List all users |
-| `DELETE` | `/users/:id` | Admin | Delete a user |
+| Method   | Path         | Auth   | Description              |
+| -------- | ------------ | ------ | ------------------------ |
+| `GET`    | `/users/me`  | Bearer | Get current user profile |
+| `PATCH`  | `/users/me`  | Bearer | Update current user      |
+| `GET`    | `/users`     | Admin  | List all users           |
+| `DELETE` | `/users/:id` | Admin  | Delete a user            |
 
 #### Tasks
 
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| `GET` | `/tasks` | Bearer | List current user's tasks |
-| `POST` | `/tasks` | Bearer | Create a task |
-| `GET` | `/tasks/:id` | Bearer | Get task by ID |
-| `PATCH` | `/tasks/:id` | Bearer | Update task |
-| `DELETE` | `/tasks/:id` | Bearer | Delete task |
+| Method   | Path         | Auth   | Description               |
+| -------- | ------------ | ------ | ------------------------- |
+| `GET`    | `/tasks`     | Bearer | List current user's tasks |
+| `POST`   | `/tasks`     | Bearer | Create a task             |
+| `GET`    | `/tasks/:id` | Bearer | Get task by ID            |
+| `PATCH`  | `/tasks/:id` | Bearer | Update task               |
+| `DELETE` | `/tasks/:id` | Bearer | Delete task               |
 
 ### Standard Response Envelopes
 
 **Success**
+
 ```json
 {
   "data": { ... },
@@ -145,6 +147,7 @@ URI versioning (`/api/v1`) was chosen over header versioning for:
 ```
 
 **Paginated**
+
 ```json
 {
   "data": [ ... ],
@@ -158,6 +161,7 @@ URI versioning (`/api/v1`) was chosen over header versioning for:
 ```
 
 **Error**
+
 ```json
 {
   "error": {
@@ -233,13 +237,13 @@ CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens(user_id);
 
 ### Decision 1: Fastify over Express
 
-| | Fastify | Express |
-|---|---|---|
-| Performance | ~3× faster on benchmarks | Slower |
-| Schema validation | Built-in (JSON Schema) | Manual / middleware |
-| TypeScript | First-class support | Requires additional setup |
-| Plugin ecosystem | Mature, well-structured | Massive but uneven |
-| OpenAPI | Native via `fastify-swagger` | Manual |
+|                   | Fastify                      | Express                   |
+| ----------------- | ---------------------------- | ------------------------- |
+| Performance       | ~3× faster on benchmarks     | Slower                    |
+| Schema validation | Built-in (JSON Schema)       | Manual / middleware       |
+| TypeScript        | First-class support          | Requires additional setup |
+| Plugin ecosystem  | Mature, well-structured      | Massive but uneven        |
+| OpenAPI           | Native via `fastify-swagger` | Manual                    |
 
 **Decision**: Fastify, for performance, built-in validation, and first-class TypeScript.
 
@@ -247,12 +251,12 @@ CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens(user_id);
 
 ### Decision 2: Prisma over raw SQL / other ORMs
 
-| | Prisma | TypeORM | Knex | Raw SQL |
-|---|---|---|---|---|
-| Type safety | ✅ Generated types | ⚠️ Partial | ❌ None | ❌ None |
-| Migration tooling | ✅ Built-in | ✅ Built-in | ✅ Built-in | ❌ Manual |
-| DX | ✅ Excellent | ⚠️ Complex | ⚠️ Verbose | ❌ Error-prone |
-| Query flexibility | ⚠️ Some limitations | ✅ Good | ✅ Full | ✅ Full |
+|                   | Prisma              | TypeORM     | Knex        | Raw SQL        |
+| ----------------- | ------------------- | ----------- | ----------- | -------------- |
+| Type safety       | ✅ Generated types  | ⚠️ Partial  | ❌ None     | ❌ None        |
+| Migration tooling | ✅ Built-in         | ✅ Built-in | ✅ Built-in | ❌ Manual      |
+| DX                | ✅ Excellent        | ⚠️ Complex  | ⚠️ Verbose  | ❌ Error-prone |
+| Query flexibility | ⚠️ Some limitations | ✅ Good     | ✅ Full     | ✅ Full        |
 
 **Decision**: Prisma, for its superior type safety and developer experience. Raw query escape hatch available via `prisma.$queryRaw` for complex cases.
 
@@ -260,12 +264,12 @@ CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens(user_id);
 
 ### Decision 3: Stateless JWT over Server-Side Sessions
 
-| | JWT (Stateless) | Server-Side Sessions |
-|---|---|---|
-| Horizontal scaling | ✅ No shared state | ❌ Requires shared store (Redis) |
-| Token revocation | ⚠️ Hard (needs refresh token rotation) | ✅ Instant |
-| Infrastructure complexity | ✅ Low | ⚠️ Requires session store |
-| Payload size | ⚠️ Larger per request | ✅ Just a session ID |
+|                           | JWT (Stateless)                        | Server-Side Sessions             |
+| ------------------------- | -------------------------------------- | -------------------------------- |
+| Horizontal scaling        | ✅ No shared state                     | ❌ Requires shared store (Redis) |
+| Token revocation          | ⚠️ Hard (needs refresh token rotation) | ✅ Instant                       |
+| Infrastructure complexity | ✅ Low                                 | ⚠️ Requires session store        |
+| Payload size              | ⚠️ Larger per request                  | ✅ Just a session ID             |
 
 **Decision**: JWT for stateless scalability. Refresh token rotation mitigates the revocation weakness.
 
@@ -273,12 +277,12 @@ CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens(user_id);
 
 ### Decision 4: Argon2 over bcrypt for Password Hashing
 
-| | Argon2id | bcrypt |
-|---|---|---|
-| Memory-hardness | ✅ Yes | ❌ No |
-| OWASP recommended | ✅ First choice | ✅ Acceptable fallback |
-| GPU resistance | ✅ Strong | ⚠️ Weaker |
-| Node.js library | ✅ `argon2` | ✅ `bcrypt` / `bcryptjs` |
+|                   | Argon2id        | bcrypt                   |
+| ----------------- | --------------- | ------------------------ |
+| Memory-hardness   | ✅ Yes          | ❌ No                    |
+| OWASP recommended | ✅ First choice | ✅ Acceptable fallback   |
+| GPU resistance    | ✅ Strong       | ⚠️ Weaker                |
+| Node.js library   | ✅ `argon2`     | ✅ `bcrypt` / `bcryptjs` |
 
 **Decision**: Argon2id — current OWASP first recommendation for password hashing.
 
@@ -341,19 +345,19 @@ Minimal payload — no sensitive data, no permissions that expand beyond role ch
 
 ### Threat Model Summary
 
-| Threat | Mitigation |
-|---|---|
-| Brute-force login | Rate limiting (global + per-route) |
-| Password database breach | Argon2id hashing |
-| Token theft | Short access token TTL + refresh rotation |
-| XSS | Helmet CSP headers |
-| Clickjacking | Helmet `X-Frame-Options` |
-| MIME sniffing | Helmet `X-Content-Type-Options` |
-| SQL injection | Prisma parameterized queries |
-| Mass assignment | Explicit Prisma `select` / DTO validation |
-| CORS bypass | Strict origin allowlist |
-| Secret leakage | Env vars, never in source code, fail-fast validation |
-| Enumeration attacks | UUID primary keys, consistent error messages |
+| Threat                   | Mitigation                                           |
+| ------------------------ | ---------------------------------------------------- |
+| Brute-force login        | Rate limiting (global + per-route)                   |
+| Password database breach | Argon2id hashing                                     |
+| Token theft              | Short access token TTL + refresh rotation            |
+| XSS                      | Helmet CSP headers                                   |
+| Clickjacking             | Helmet `X-Frame-Options`                             |
+| MIME sniffing            | Helmet `X-Content-Type-Options`                      |
+| SQL injection            | Prisma parameterized queries                         |
+| Mass assignment          | Explicit Prisma `select` / DTO validation            |
+| CORS bypass              | Strict origin allowlist                              |
+| Secret leakage           | Env vars, never in source code, fail-fast validation |
+| Enumeration attacks      | UUID primary keys, consistent error messages         |
 
 ### Security Headers (Helmet)
 
@@ -373,11 +377,11 @@ Strict-Transport-Security:  max-age=31536000; includeSubDomains
 
 ### What to Cache
 
-| Data | Strategy | TTL |
-|---|---|---|
-| User profile (`/users/me`) | Redis, per-user key | 5 min |
-| Task lists (`/tasks`) | Redis, per-user key, invalidate on write | 2 min |
-| JWT public keys (if asymmetric) | In-memory | Until rotation |
+| Data                            | Strategy                                 | TTL            |
+| ------------------------------- | ---------------------------------------- | -------------- |
+| User profile (`/users/me`)      | Redis, per-user key                      | 5 min          |
+| Task lists (`/tasks`)           | Redis, per-user key, invalidate on write | 2 min          |
+| JWT public keys (if asymmetric) | In-memory                                | Until rotation |
 
 ### Cache Invalidation Rules
 
@@ -404,12 +408,12 @@ Response: 429 Too Many Requests
 
 ### Recommended Route-Specific Limits
 
-| Route | Limit | Reasoning |
-|---|---|---|
-| `POST /auth/login` | 10 req / 15 min per IP | Prevent brute-force |
-| `POST /auth/register` | 5 req / hour per IP | Prevent account spam |
-| `POST /auth/refresh` | 30 req / 15 min per IP | Token rotation abuse |
-| All other routes | 100 req / min per user | General abuse protection |
+| Route                 | Limit                  | Reasoning                |
+| --------------------- | ---------------------- | ------------------------ |
+| `POST /auth/login`    | 10 req / 15 min per IP | Prevent brute-force      |
+| `POST /auth/register` | 5 req / hour per IP    | Prevent account spam     |
+| `POST /auth/refresh`  | 30 req / 15 min per IP | Token rotation abuse     |
+| All other routes      | 100 req / min per user | General abuse protection |
 
 ### Future: Distributed Rate Limiting
 
@@ -443,17 +447,17 @@ UnhandledError (unknown, unexpected)
 
 ### Error Code Catalogue
 
-| Code | HTTP | Description |
-|---|---|---|
-| `VALIDATION_ERROR` | 400 | Schema validation failure |
-| `INVALID_CREDENTIALS` | 401 | Wrong email or password |
-| `TOKEN_EXPIRED` | 401 | Access token has expired |
-| `TOKEN_INVALID` | 401 | Malformed or tampered token |
-| `INSUFFICIENT_PERMISSIONS` | 403 | User role cannot access resource |
-| `RESOURCE_NOT_FOUND` | 404 | Entity does not exist |
-| `EMAIL_ALREADY_EXISTS` | 409 | Registration conflict |
-| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests |
-| `INTERNAL_ERROR` | 500 | Unexpected server failure |
+| Code                       | HTTP | Description                      |
+| -------------------------- | ---- | -------------------------------- |
+| `VALIDATION_ERROR`         | 400  | Schema validation failure        |
+| `INVALID_CREDENTIALS`      | 401  | Wrong email or password          |
+| `TOKEN_EXPIRED`            | 401  | Access token has expired         |
+| `TOKEN_INVALID`            | 401  | Malformed or tampered token      |
+| `INSUFFICIENT_PERMISSIONS` | 403  | User role cannot access resource |
+| `RESOURCE_NOT_FOUND`       | 404  | Entity does not exist            |
+| `EMAIL_ALREADY_EXISTS`     | 409  | Registration conflict            |
+| `RATE_LIMIT_EXCEEDED`      | 429  | Too many requests                |
+| `INTERNAL_ERROR`           | 500  | Unexpected server failure        |
 
 ---
 
@@ -530,26 +534,27 @@ Internet ──► LB ───├─── Fastify App Instance 2 ───┼�
 **What enables this**: stateless JWT authentication means any instance can handle any request — no sticky sessions needed.
 
 **What needs to change**:
+
 - Rate limiting must move to Redis (shared counter)
 - Refresh token store is already in PostgreSQL (shared)
 - Add a load balancer (nginx, AWS ALB)
 
 ### Database Scaling Path
 
-| Scale | Strategy |
-|---|---|
-| Read-heavy | Add PostgreSQL read replicas, route reads via Prisma replica config |
-| Write-heavy | Partition tables (e.g., tasks by user_id range) |
-| Very large | Migrate to distributed DB (CockroachDB, PlanetScale) |
+| Scale       | Strategy                                                            |
+| ----------- | ------------------------------------------------------------------- |
+| Read-heavy  | Add PostgreSQL read replicas, route reads via Prisma replica config |
+| Write-heavy | Partition tables (e.g., tasks by user_id range)                     |
+| Very large  | Migrate to distributed DB (CockroachDB, PlanetScale)                |
 
 ### Bottleneck Analysis
 
-| Component | Current Bottleneck | Mitigation |
-|---|---|---|
-| Auth (argon2) | CPU-intensive | Worker thread pool or dedicated auth service |
-| DB reads | Index coverage | Covered by current indexes at this scale |
-| DB writes | Single primary | Read replicas defer this concern |
-| Rate limiting | In-memory per-instance | Redis shared counter |
+| Component     | Current Bottleneck     | Mitigation                                   |
+| ------------- | ---------------------- | -------------------------------------------- |
+| Auth (argon2) | CPU-intensive          | Worker thread pool or dedicated auth service |
+| DB reads      | Index coverage         | Covered by current indexes at this scale     |
+| DB writes     | Single primary         | Read replicas defer this concern             |
+| Rate limiting | In-memory per-instance | Redis shared counter                         |
 
 ---
 
@@ -564,15 +569,15 @@ Internet ──► LB ───├─── Fastify App Instance 2 ───┼�
 
 ### Alternatives Not Chosen
 
-| Decision | Alternative | Why not chosen |
-|---|---|---|
-| Fastify | Express | Performance and built-in validation |
-| Prisma | TypeORM | Better type inference, cleaner DX |
-| JWT | Sessions + Redis | Requires additional infrastructure |
-| Argon2 | bcrypt | Argon2 is OWASP first recommendation |
-| PostgreSQL | MySQL | Better JSON support, richer feature set |
-| Docker Compose | Bare metal | Reproducible dev environment |
-| Monolith | Microservices | Premature complexity at this scale |
+| Decision       | Alternative      | Why not chosen                          |
+| -------------- | ---------------- | --------------------------------------- |
+| Fastify        | Express          | Performance and built-in validation     |
+| Prisma         | TypeORM          | Better type inference, cleaner DX       |
+| JWT            | Sessions + Redis | Requires additional infrastructure      |
+| Argon2         | bcrypt           | Argon2 is OWASP first recommendation    |
+| PostgreSQL     | MySQL            | Better JSON support, richer feature set |
+| Docker Compose | Bare metal       | Reproducible dev environment            |
+| Monolith       | Microservices    | Premature complexity at this scale      |
 
 ---
 

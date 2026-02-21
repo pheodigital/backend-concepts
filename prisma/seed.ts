@@ -1,26 +1,26 @@
-import { PrismaClient, Role, TaskStatus } from '@prisma/client';
-import argon2 from 'argon2';
+import { PrismaClient, Role, TaskStatus } from "@prisma/client";
+import argon2 from "argon2";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seeding...');
+  console.log("🌱 Starting database seeding...");
 
   // 1️⃣ Users to create
   const usersData = [
     {
-      email: 'admin@example.com',
-      password: 'AdminPassword123!',
+      email: "admin@example.com",
+      password: "AdminPassword123!",
       role: Role.ADMIN,
     },
     {
-      email: 'user1@example.com',
-      password: 'User1Password123!',
+      email: "user1@example.com",
+      password: "User1Password123!",
       role: Role.USER,
     },
     {
-      email: 'user2@example.com',
-      password: 'User2Password123!',
+      email: "user2@example.com",
+      password: "User2Password123!",
       role: Role.USER,
     },
   ];
@@ -50,19 +50,19 @@ async function main() {
     const tasksData = [
       {
         title: `Task 1 for ${user.email}`,
-        description: 'This is the first task',
+        description: "This is the first task",
         status: TaskStatus.OPEN,
         ownerId: user.id,
       },
       {
         title: `Task 2 for ${user.email}`,
-        description: 'This is the second task',
+        description: "This is the second task",
         status: TaskStatus.IN_PROGRESS,
         ownerId: user.id,
       },
       {
         title: `Task 3 for ${user.email}`,
-        description: 'This is the third task',
+        description: "This is the third task",
         status: TaskStatus.DONE,
         ownerId: user.id,
       },
@@ -74,15 +74,15 @@ async function main() {
     });
   }
 
-  console.log('✅ All tasks seeded successfully!');
+  console.log("✅ All tasks seeded successfully!");
 }
 
 main()
-  .catch(e => {
-    console.error('❌ Seeding failed:', e);
+  .catch((e) => {
+    console.error("❌ Seeding failed:", e);
     process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();
-    console.log('🌱 Database connection closed.');
+    console.log("🌱 Database connection closed.");
   });

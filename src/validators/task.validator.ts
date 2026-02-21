@@ -1,10 +1,10 @@
 // src/validators/task.validator.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const createTaskSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
-  status: z.enum(['TODO', 'IN_PROGRESS', 'DONE']).optional(),
+  status: z.enum(["TODO", "IN_PROGRESS", "DONE"]).optional(),
 });
 
 export const updateTaskSchema = createTaskSchema.partial();

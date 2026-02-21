@@ -1,9 +1,10 @@
-import type { FastifyReply } from 'fastify';
-import { prisma } from '../../config/prisma';
-import { AdminController } from './admin.controller';
+// src/controllers/v1/admin.controller.test.ts
+import type { FastifyReply } from "fastify";
+import { prisma } from "../../config/prisma";
+import { AdminController } from "./admin.controller";
 
 // Mock Prisma
-jest.mock('../../config/prisma', () => ({
+jest.mock("../../config/prisma", () => ({
   prisma: {
     user: {
       findMany: jest.fn(),
@@ -13,7 +14,7 @@ jest.mock('../../config/prisma', () => ({
 
 const mockPrisma = prisma;
 
-describe('AdminController', () => {
+describe("AdminController", () => {
   let mockReply: jest.Mocked<Partial<FastifyReply>>;
 
   beforeEach(() => {
@@ -27,24 +28,26 @@ describe('AdminController', () => {
     } as any; // Type assertion for chainable methods
   });
 
-  describe('listUsers', () => {
-    it('should return all users ordered by createdAt desc', async () => {
+  describe("listUsers", () => {
+    it("should return all users ordered by createdAt desc", async () => {
       const mockUsers = [
         {
-          id: 'user-123',
-          email: 'admin@example.com',
-          role: 'ADMIN',
-          createdAt: new Date('2026-01-01'),
+          id: "user-123",
+          email: "admin@example.com",
+          role: "ADMIN",
+          createdAt: new Date("2026-01-01"),
         },
         {
-          id: 'user-456',
-          email: 'user@example.com',
-          role: 'USER',
-          createdAt: new Date('2026-01-02'),
+          id: "user-456",
+          email: "user@example.com",
+          role: "USER",
+          createdAt: new Date("2026-01-02"),
         },
       ];
 
-      (mockPrisma.user.findMany as jest.Mock).mockImplementation(() => Promise.resolve(mockUsers));
+      (mockPrisma.user.findMany as jest.Mock).mockImplementation(() =>
+        Promise.resolve(mockUsers),
+      );
 
       await AdminController.listUsers({} as any, mockReply as FastifyReply);
 
@@ -55,26 +58,30 @@ describe('AdminController', () => {
           role: true,
           createdAt: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       });
       expect(mockReply.send).toHaveBeenCalledWith(mockUsers);
     });
 
-    it('should return empty array when no users exist', async () => {
-      (mockPrisma.user.findMany as jest.Mock).mockImplementation(() => Promise.resolve([]));
+    it("should return empty array when no users exist", async () => {
+      (mockPrisma.user.findMany as jest.Mock).mockImplementation(() =>
+        Promise.resolve([]),
+      );
 
       await AdminController.listUsers({} as any, mockReply as FastifyReply);
 
       expect(mockReply.send).toHaveBeenCalledWith([]);
     });
 
-    it('should handle database errors gracefully', async () => {
-      const mockError = new Error('Database connection failed');
-      (mockPrisma.user.findMany as jest.Mock).mockImplementation(() => Promise.reject(mockError));
-
-      await expect(AdminController.listUsers({} as any, mockReply as FastifyReply)).rejects.toThrow(
-        'Database connection failed'
+    it("should handle database errors gracefully", async () => {
+      const mockError = new Error("Database connection failed");
+      (mockPrisma.user.findMany as jest.Mock).mockImplementation(() =>
+        Promise.reject(mockError),
       );
+
+      await expect(
+        AdminController.listUsers({} as any, mockReply as FastifyReply),
+      ).rejects.toThrow("Database connection failed");
     });
   });
 });

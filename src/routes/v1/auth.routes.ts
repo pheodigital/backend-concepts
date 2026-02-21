@@ -1,7 +1,7 @@
 // src/routes/v1/auth.routes.ts
-import type { FastifyInstance } from 'fastify';
-import { requireAuth } from '../../common/middleware/auth.middleware';
-import { validate } from '../../common/middleware/validator.middleware';
+import type { FastifyInstance } from "fastify";
+import { requireAuth } from "../../common/middleware/auth.middleware";
+import { validate } from "../../common/middleware/validator.middleware";
 import {
   AccessTokenResponseSchema,
   CurrentUserResponseSchema,
@@ -11,21 +11,28 @@ import {
   RefreshTokenBodySchema,
   RegisterBodySchema,
   UserResponseSchema,
-} from '../../common/swagger/auth.schema';
-import { CommonErrorResponses, RateLimitErrorResponse } from '../../common/swagger/error.swager';
-import { AuthController } from '../../controllers/v1/auth.controller';
-import { loginSchema, refreshSchema, registerSchema } from '../../validators/auth.validator';
+} from "../../common/swagger/auth.schema";
+import {
+  CommonErrorResponses,
+  RateLimitErrorResponse,
+} from "../../common/swagger/error.swager";
+import { AuthController } from "../../controllers/v1/auth.controller";
+import {
+  loginSchema,
+  refreshSchema,
+  registerSchema,
+} from "../../validators/auth.validator";
 
 export async function authRoutesV1(app: FastifyInstance) {
-  app.register(async instance => {
+  app.register(async (instance) => {
     // POST /register
     instance.post(
-      '/register',
+      "/register",
       {
-        preHandler: [validate(registerSchema, 'body')],
+        preHandler: [validate(registerSchema, "body")],
         schema: {
-          tags: ['Auth'],
-          summary: 'Register a new user',
+          tags: ["Auth"],
+          summary: "Register a new user",
           body: RegisterBodySchema,
           response: {
             200: UserResponseSchema,
@@ -36,21 +43,21 @@ export async function authRoutesV1(app: FastifyInstance) {
         config: {
           rateLimit: {
             max: 5,
-            timeWindow: '1 minute',
+            timeWindow: "1 minute",
           },
         },
       },
-      AuthController.register
+      AuthController.register,
     );
 
     // POST /login
     instance.post(
-      '/login',
+      "/login",
       {
-        preHandler: [validate(loginSchema, 'body')],
+        preHandler: [validate(loginSchema, "body")],
         schema: {
-          tags: ['Auth'],
-          summary: 'Login',
+          tags: ["Auth"],
+          summary: "Login",
           body: LoginBodySchema,
           response: {
             200: LoginResponseSchema,
@@ -61,21 +68,21 @@ export async function authRoutesV1(app: FastifyInstance) {
         config: {
           rateLimit: {
             max: 5,
-            timeWindow: '1 minute',
+            timeWindow: "1 minute",
           },
         },
       },
-      AuthController.login
+      AuthController.login,
     );
 
     // GET /me
     instance.get(
-      '/me',
+      "/me",
       {
         preHandler: [requireAuth],
         schema: {
-          tags: ['Auth'],
-          summary: 'Get current user',
+          tags: ["Auth"],
+          summary: "Get current user",
           security: [{ bearerAuth: [] }],
           response: {
             200: CurrentUserResponseSchema,
@@ -83,20 +90,20 @@ export async function authRoutesV1(app: FastifyInstance) {
           },
         },
       },
-      async req => ({
+      async (req) => ({
         userId: req.user!.userId,
         role: req.user!.role,
-      })
+      }),
     );
 
     // POST /refresh
     instance.post(
-      '/refresh',
+      "/refresh",
       {
-        preHandler: [validate(refreshSchema, 'body')],
+        preHandler: [validate(refreshSchema, "body")],
         schema: {
-          tags: ['Auth'],
-          summary: 'Refresh access token',
+          tags: ["Auth"],
+          summary: "Refresh access token",
           body: RefreshTokenBodySchema,
           response: {
             200: AccessTokenResponseSchema,
@@ -107,22 +114,22 @@ export async function authRoutesV1(app: FastifyInstance) {
         config: {
           rateLimit: {
             max: 3,
-            timeWindow: '1 minute',
+            timeWindow: "1 minute",
           },
         },
       },
-      AuthController.refresh
+      AuthController.refresh,
     );
 
     // POST /logout
     instance.post(
-      '/logout',
+      "/logout",
       {
         // You might also want requireAuth here; depends on your design.
-        preHandler: [validate(refreshSchema, 'body')],
+        preHandler: [validate(refreshSchema, "body")],
         schema: {
-          tags: ['Auth'],
-          summary: 'Logout',
+          tags: ["Auth"],
+          summary: "Logout",
           body: RefreshTokenBodySchema,
           response: {
             200: LogoutResponseSchema,
@@ -130,7 +137,7 @@ export async function authRoutesV1(app: FastifyInstance) {
           },
         },
       },
-      AuthController.logout
+      AuthController.logout,
     );
   });
 }

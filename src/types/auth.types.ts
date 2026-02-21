@@ -1,7 +1,7 @@
 export interface RegisterRequest {
   email: string;
   password: string;
-  role?: 'USER' | 'ADMIN';
+  role?: "USER" | "ADMIN";
 }
 
 export interface LoginRequest {
@@ -14,11 +14,11 @@ export interface LoginResponse {
   user: {
     id: string;
     email: string;
-    role: 'USER' | 'ADMIN';
+    role: "USER" | "ADMIN";
   };
 }
 
 export type JwtPayload = {
   userId: string;
-  role: 'USER' | 'ADMIN';
+  role: "USER" | "ADMIN";
 };

@@ -1,10 +1,10 @@
 // src/validators/auth.validator.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const registerSchema = z.object({
   email: z.email(),
   password: z.string().min(8),
-  role: z.enum(['USER', 'ADMIN']).optional(),
+  role: z.enum(["USER", "ADMIN"]).optional(),
 });
 
 export const loginSchema = z.object({
@@ -13,7 +13,7 @@ export const loginSchema = z.object({
 });
 
 export const refreshSchema = z.object({
-  refreshToken: z.string().min(1, 'Refresh token is required'),
+  refreshToken: z.string().min(1, "Refresh token is required"),
 });
 
 export type RegisterBody = z.infer<typeof registerSchema>;

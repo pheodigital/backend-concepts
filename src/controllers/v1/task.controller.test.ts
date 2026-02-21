@@ -1,6 +1,7 @@
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import { TaskService } from '../../services/v1/task.service';
-import { TaskController } from './task.controller';
+// src/controllers/v1/task.controller.test.ts
+import type { FastifyReply, FastifyRequest } from "fastify";
+import { TaskService } from "../../services/v1/task.service";
+import { TaskController } from "./task.controller";
 
 // Define TaskIdParams interface locally for test (same as routes)
 interface TaskIdParams {
@@ -11,20 +12,20 @@ interface TaskIdParams {
 
 // ✅ MANUAL ENUM - No Prisma dependency
 const TaskStatus: any = {
-  TODO: 'TODO',
-  IN_PROGRESS: 'IN_PROGRESS',
-  DONE: 'DONE',
+  TODO: "TODO",
+  IN_PROGRESS: "IN_PROGRESS",
+  DONE: "DONE",
 };
 
-jest.mock('../../services/v1/task.service');
+jest.mock("../../services/v1/task.service");
 
-describe('TaskController', () => {
+describe("TaskController", () => {
   let mockRequest: Partial<FastifyRequest>;
   let mockReply: Partial<FastifyReply>;
 
   beforeEach(() => {
     mockRequest = {
-      user: { userId: 'user-123', role: 'ADMIN' },
+      user: { userId: "user-123", role: "ADMIN" },
       body: {},
       params: {},
       query: {},
@@ -36,128 +37,152 @@ describe('TaskController', () => {
     jest.clearAllMocks();
   });
 
-  describe('createTask', () => {
-    it('should create a task and return 201 status', async () => {
-      const taskData = { title: 'Test Task', description: 'Test Description' };
-      const createdTask = { id: '1', ...taskData };
+  describe("createTask", () => {
+    it("should create a task and return 201 status", async () => {
+      const taskData = { title: "Test Task", description: "Test Description" };
+      const createdTask = { id: "1", ...taskData };
 
       mockRequest.body = taskData;
       (TaskService.create as jest.Mock).mockResolvedValue(createdTask);
 
-      await TaskController.createTask(mockRequest as FastifyRequest, mockReply as FastifyReply);
+      await TaskController.createTask(
+        mockRequest as FastifyRequest,
+        mockReply as FastifyReply,
+      );
 
       expect(TaskService.create).toHaveBeenCalledWith(taskData, {
-        userId: 'user-123',
-        role: 'ADMIN',
+        userId: "user-123",
+        role: "ADMIN",
       });
       expect(mockReply.status).toHaveBeenCalledWith(201);
       expect(mockReply.send).toHaveBeenCalledWith(createdTask);
     });
   });
 
-  describe('getTasks', () => {
-    it('should return tasks with default pagination', async () => {
+  describe("getTasks", () => {
+    it("should return tasks with default pagination", async () => {
       const tasks = { data: [], total: 0 };
 
       mockRequest.query = {};
       (TaskService.list as jest.Mock).mockResolvedValue(tasks);
 
-      await TaskController.getTasks(mockRequest as FastifyRequest, mockReply as FastifyReply);
+      await TaskController.getTasks(
+        mockRequest as FastifyRequest,
+        mockReply as FastifyReply,
+      );
 
       expect(TaskService.list).toHaveBeenCalledWith(
-        { userId: 'user-123', role: 'ADMIN' },
+        { userId: "user-123", role: "ADMIN" },
         1,
         10,
         undefined,
-        'createdAt',
-        'desc',
+        "createdAt",
+        "desc",
       );
       expect(mockReply.send).toHaveBeenCalledWith(tasks);
     });
 
-    it('should return tasks with custom filters', async () => {
+    it("should return tasks with custom filters", async () => {
       const tasks = { data: [], total: 0 };
 
       mockRequest.query = {
         page: 2,
         limit: 20,
         status: TaskStatus.DONE,
-        sort: 'title',
-        order: 'asc',
+        sort: "title",
+        order: "asc",
       };
       (TaskService.list as jest.Mock).mockResolvedValue(tasks);
 
-      await TaskController.getTasks(mockRequest as FastifyRequest, mockReply as FastifyReply);
+      await TaskController.getTasks(
+        mockRequest as FastifyRequest,
+        mockReply as FastifyReply,
+      );
 
       expect(TaskService.list).toHaveBeenCalledWith(
-        { userId: 'user-123', role: 'ADMIN' },
+        { userId: "user-123", role: "ADMIN" },
         2,
         20,
         TaskStatus.DONE,
-        'title',
-        'asc',
+        "title",
+        "asc",
       );
       expect(mockReply.send).toHaveBeenCalledWith(tasks);
     });
   });
 
   // Fix: Use proper typing for routes with :id params
-  describe('getTaskById', () => {
-    it('should return task by id', async () => {
-      const task = { id: '1', title: 'Test Task' };
+  describe("getTaskById", () => {
+    it("should return task by id", async () => {
+      const task = { id: "1", title: "Test Task" };
 
       // Properly typed mock request for TaskIdParams
       const requestWithParams: FastifyRequest<TaskIdParams> = {
         ...(mockRequest as any),
-        params: { id: '1' },
+        params: { id: "1" },
       } as FastifyRequest<TaskIdParams>;
 
       (TaskService.getById as jest.Mock).mockResolvedValue(task);
 
-      await TaskController.getTaskById(requestWithParams, mockReply as FastifyReply);
+      await TaskController.getTaskById(
+        requestWithParams,
+        mockReply as FastifyReply,
+      );
 
-      expect(TaskService.getById).toHaveBeenCalledWith('1', { userId: 'user-123', role: 'ADMIN' });
+      expect(TaskService.getById).toHaveBeenCalledWith("1", {
+        userId: "user-123",
+        role: "ADMIN",
+      });
       expect(mockReply.send).toHaveBeenCalledWith(task);
     });
   });
 
-  describe('updateTask', () => {
-    it('should update task and return updated task', async () => {
-      const updateData = { title: 'Updated Title' };
-      const updatedTask = { id: '1', ...updateData };
+  describe("updateTask", () => {
+    it("should update task and return updated task", async () => {
+      const updateData = { title: "Updated Title" };
+      const updatedTask = { id: "1", ...updateData };
 
       // Properly typed mock request for TaskIdParams
       const requestWithParams: FastifyRequest<TaskIdParams> = {
         ...(mockRequest as any),
-        params: { id: '1' },
+        params: { id: "1" },
         body: updateData,
       } as FastifyRequest<TaskIdParams>;
 
       (TaskService.update as jest.Mock).mockResolvedValue(updatedTask);
 
-      await TaskController.updateTask(requestWithParams, mockReply as FastifyReply);
+      await TaskController.updateTask(
+        requestWithParams,
+        mockReply as FastifyReply,
+      );
 
-      expect(TaskService.update).toHaveBeenCalledWith('1', updateData, {
-        userId: 'user-123',
-        role: 'ADMIN',
+      expect(TaskService.update).toHaveBeenCalledWith("1", updateData, {
+        userId: "user-123",
+        role: "ADMIN",
       });
       expect(mockReply.send).toHaveBeenCalledWith(updatedTask);
     });
   });
 
-  describe('deleteTask', () => {
-    it('should delete task and return 204 status', async () => {
+  describe("deleteTask", () => {
+    it("should delete task and return 204 status", async () => {
       // Properly typed mock request for TaskIdParams
       const requestWithParams: FastifyRequest<TaskIdParams> = {
         ...(mockRequest as any),
-        params: { id: '1' },
+        params: { id: "1" },
       } as FastifyRequest<TaskIdParams>;
 
       (TaskService.delete as jest.Mock).mockResolvedValue(undefined);
 
-      await TaskController.deleteTask(requestWithParams, mockReply as FastifyReply);
+      await TaskController.deleteTask(
+        requestWithParams,
+        mockReply as FastifyReply,
+      );
 
-      expect(TaskService.delete).toHaveBeenCalledWith('1', { userId: 'user-123', role: 'ADMIN' });
+      expect(TaskService.delete).toHaveBeenCalledWith("1", {
+        userId: "user-123",
+        role: "ADMIN",
+      });
       expect(mockReply.status).toHaveBeenCalledWith(204);
       expect(mockReply.send).toHaveBeenCalled();
     });

@@ -1,20 +1,20 @@
 // src/routes/v1/task.routes.ts
-import type { FastifyInstance } from 'fastify';
-import { TaskController } from '../../controllers/v1/task.controller';
-import { requireAuth } from '../../common/middleware/auth.middleware';
-import { validate } from '../../common/middleware/validator.middleware';
+import type { FastifyInstance } from "fastify";
+import { TaskController } from "../../controllers/v1/task.controller";
+import { requireAuth } from "../../common/middleware/auth.middleware";
+import { validate } from "../../common/middleware/validator.middleware";
 import {
   createTaskSchema,
   updateTaskSchema,
   taskIdParamSchema,
-} from '../../validators/task.validator';
-import { listTasksQuerySchema } from '../../validators/task-query.validator';
-import { CommonErrorResponses } from '../../common/swagger/error.swager';
+} from "../../validators/task.validator";
+import { listTasksQuerySchema } from "../../validators/task-query.validator";
+import { CommonErrorResponses } from "../../common/swagger/error.swager";
 import {
   TaskSchema,
   PaginatedTasksSchema,
   taskIdParamsJsonSchema,
-} from '../../common/swagger/task.schema';
+} from "../../common/swagger/task.schema";
 
 // Define the param type for type safety
 interface TaskIdParams {
@@ -25,28 +25,28 @@ interface TaskIdParams {
 
 export async function taskRoutesV1(app: FastifyInstance) {
   app.register(async (instance) => {
-    instance.addHook('preHandler', requireAuth);
+    instance.addHook("preHandler", requireAuth);
 
     // GET /tasks - paginated list
     instance.get(
-      '/tasks',
+      "/tasks",
       {
-        preHandler: [validate(listTasksQuerySchema, 'query')],
+        preHandler: [validate(listTasksQuerySchema, "query")],
         schema: {
-          tags: ['Tasks'],
-          summary: 'Get all tasks with pagination & filtering',
+          tags: ["Tasks"],
+          summary: "Get all tasks with pagination & filtering",
           querystring: {
-            type: 'object',
+            type: "object",
             properties: {
-              page: { type: 'integer', minimum: 1, default: 1 },
-              limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-              status: { type: 'string', enum: ['TODO', 'IN_PROGRESS', 'DONE'] },
+              page: { type: "integer", minimum: 1, default: 1 },
+              limit: { type: "integer", minimum: 1, maximum: 100, default: 10 },
+              status: { type: "string", enum: ["TODO", "IN_PROGRESS", "DONE"] },
               sort: {
-                type: 'string',
-                enum: ['createdAt', 'updatedAt', 'title'],
-                default: 'createdAt',
+                type: "string",
+                enum: ["createdAt", "updatedAt", "title"],
+                default: "createdAt",
               },
-              order: { type: 'string', enum: ['asc', 'desc'], default: 'desc' },
+              order: { type: "string", enum: ["asc", "desc"], default: "desc" },
             },
           },
           response: {
@@ -61,19 +61,19 @@ export async function taskRoutesV1(app: FastifyInstance) {
 
     // POST /tasks - create
     instance.post(
-      '/tasks',
+      "/tasks",
       {
-        preHandler: [validate(createTaskSchema, 'body')],
+        preHandler: [validate(createTaskSchema, "body")],
         schema: {
-          tags: ['Tasks'],
-          summary: 'Create a new task',
+          tags: ["Tasks"],
+          summary: "Create a new task",
           body: {
-            type: 'object',
-            required: ['title'],
+            type: "object",
+            required: ["title"],
             properties: {
-              title: { type: 'string' },
-              description: { type: 'string' },
-              status: { type: 'string', enum: ['TODO', 'IN_PROGRESS', 'DONE'] },
+              title: { type: "string" },
+              description: { type: "string" },
+              status: { type: "string", enum: ["TODO", "IN_PROGRESS", "DONE"] },
             },
           },
           response: {
@@ -88,12 +88,12 @@ export async function taskRoutesV1(app: FastifyInstance) {
 
     // GET /tasks/:id - Fixed with explicit typing
     instance.get<TaskIdParams>(
-      '/tasks/:id',
+      "/tasks/:id",
       {
-        preHandler: [validate(taskIdParamSchema, 'params')],
+        preHandler: [validate(taskIdParamSchema, "params")],
         schema: {
-          tags: ['Tasks'],
-          summary: 'Get a task by ID',
+          tags: ["Tasks"],
+          summary: "Get a task by ID",
           params: taskIdParamsJsonSchema,
           response: {
             200: TaskSchema,
@@ -107,19 +107,22 @@ export async function taskRoutesV1(app: FastifyInstance) {
 
     // PUT /tasks/:id - Fixed with explicit typing
     instance.put<TaskIdParams>(
-      '/tasks/:id',
+      "/tasks/:id",
       {
-        preHandler: [validate(taskIdParamSchema, 'params'), validate(updateTaskSchema, 'body')],
+        preHandler: [
+          validate(taskIdParamSchema, "params"),
+          validate(updateTaskSchema, "body"),
+        ],
         schema: {
-          tags: ['Tasks'],
-          summary: 'Update a task by ID',
+          tags: ["Tasks"],
+          summary: "Update a task by ID",
           params: taskIdParamsJsonSchema,
           body: {
-            type: 'object',
+            type: "object",
             properties: {
-              title: { type: 'string' },
-              description: { type: 'string' },
-              status: { type: 'string', enum: ['TODO', 'IN_PROGRESS', 'DONE'] },
+              title: { type: "string" },
+              description: { type: "string" },
+              status: { type: "string", enum: ["TODO", "IN_PROGRESS", "DONE"] },
             },
           },
           response: {
@@ -134,15 +137,15 @@ export async function taskRoutesV1(app: FastifyInstance) {
 
     // DELETE /tasks/:id - Fixed with explicit typing
     instance.delete<TaskIdParams>(
-      '/tasks/:id',
+      "/tasks/:id",
       {
-        preHandler: [validate(taskIdParamSchema, 'params')],
+        preHandler: [validate(taskIdParamSchema, "params")],
         schema: {
-          tags: ['Tasks'],
-          summary: 'Delete a task by ID',
+          tags: ["Tasks"],
+          summary: "Delete a task by ID",
           params: taskIdParamsJsonSchema,
           response: {
-            204: { type: 'null' },
+            204: { type: "null" },
             ...CommonErrorResponses,
           },
           security: [{ bearerAuth: [] }],

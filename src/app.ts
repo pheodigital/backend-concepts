@@ -1,36 +1,49 @@
 // src/app.ts
 
-import cors from '@fastify/cors';
-import helmet from '@fastify/helmet';
-import rateLimit from '@fastify/rate-limit';
+import cors from "@fastify/cors";
+import helmet from "@fastify/helmet";
+import rateLimit from "@fastify/rate-limit";
 
-import type { FastifyError, FastifyInstance } from 'fastify';
-import Fastify from 'fastify';
+import type { FastifyError, FastifyInstance } from "fastify";
+import Fastify from "fastify";
 
-import { registerSwagger } from './common/swagger/swagger';
+import { registerSwagger } from "./common/swagger/swagger";
 
-import { env } from './config/env';
+import { env } from "./config/env";
+import { AppError } from "./common/errors/app-error";
 
-import { adminRoutesV1 } from './routes/v1/admin.routes';
-import { authRoutesV1 } from './routes/v1/auth.routes';
-import { taskRoutesV1 } from './routes/v1/task.routes';
-import { userRoutesV1 } from './routes/v1/user.routes';
+import { adminRoutesV1 } from "./routes/v1/admin.routes";
+import { authRoutesV1 } from "./routes/v1/auth.routes";
+import { taskRoutesV1 } from "./routes/v1/task.routes";
+import { userRoutesV1 } from "./routes/v1/user.routes";
 
 function isFastifyError(error: unknown): error is FastifyError {
-  return typeof error === 'object' && error !== null && 'message' in error;
+  return typeof error === "object" && error !== null && "message" in error;
 }
 
 export function setupFastifyErrorHandler(app: FastifyInstance) {
   app.setErrorHandler((error, _request, reply) => {
-    if (isFastifyError(error)) {
-      reply.status(500).send({ message: error.message });
-    } else {
-      reply.status(500).send({ message: 'An unexpected error occurred' });
+    // Handles AppError (thrown by middleware and services)
+    if (error instanceof AppError) {
+      return reply.status(error.statusCode).send({
+        message: error.message,
+        code: error.code,
+        ...(error.details && { details: error.details }),
+      });
     }
+
+    // Handles Fastify's own validation/parsing errors
+    if (isFastifyError(error) && error.statusCode) {
+      return reply.status(error.statusCode).send({ message: error.message });
+    }
+
+    reply.status(500).send({ message: "An unexpected error occurred" });
   });
 }
 
-export async function buildApp(opts?: { enableRateLimit?: boolean }): Promise<FastifyInstance> {
+export async function buildApp(opts?: {
+  enableRateLimit?: boolean;
+}): Promise<FastifyInstance> {
   const app = Fastify({
     logger: true,
     requestTimeout: 10_000 /* Prevent requests from hanging forever. */,
@@ -46,7 +59,7 @@ export async function buildApp(opts?: { enableRateLimit?: boolean }): Promise<Fa
     origin: (origin, cb) => {
       if (!origin) cb(null, true);
       else if (origin === env.FRONTEND_URL) cb(null, true);
-      else cb(new Error('Not allowed by CORS'), false);
+      else cb(new Error("Not allowed by CORS"), false);
     },
     credentials: true,
   });
@@ -55,7 +68,7 @@ export async function buildApp(opts?: { enableRateLimit?: boolean }): Promise<Fa
   if (opts?.enableRateLimit !== false) {
     app.register(rateLimit, {
       max: 100,
-      timeWindow: '1 minute',
+      timeWindow: "1 minute",
     });
   }
 
@@ -65,12 +78,12 @@ export async function buildApp(opts?: { enableRateLimit?: boolean }): Promise<Fa
 
   // Health/root
 
-  app.get('/health', async () => {
-    return { status: 'ok', timestamp: new Date().toISOString() };
+  app.get("/health", async () => {
+    return { status: "ok", timestamp: new Date().toISOString() };
   });
 
-  app.get('/', async () => ({
-    message: 'Welcome to the API. Visit /docs for Swagger UI.',
+  app.get("/", async () => ({
+    message: "Welcome to the API. Visit /docs for Swagger UI.",
   }));
 
   // API routes
