@@ -2,27 +2,27 @@
 
 // Single user response
 export const UserSchema = {
-  type: 'object',
+  type: "object",
   properties: {
-    id: { type: 'string' },
-    email: { type: 'string', format: 'email' },
-    role: { type: 'string', enum: ['USER', 'ADMIN'] },
-    createdAt: { type: 'string', format: 'date-time' },
+    id: { type: "string" },
+    email: { type: "string", format: "email" },
+    role: { type: "string", enum: ["USER", "ADMIN"] },
+    createdAt: { type: "string", format: "date-time" },
   },
-  required: ['id', 'email', 'role', 'createdAt'],
+  required: ["id", "email", "role", "createdAt"],
 };
 
 // Array of users
 export const UsersArraySchema = {
-  type: 'array',
+  type: "array",
   items: UserSchema,
 };
 
 // Route params for Swagger / OpenAPI
 export const getUserParamsJsonSchema = {
-  type: 'object',
+  type: "object",
   properties: {
-    id: { type: 'string', description: 'User CUID' },
+    id: { type: "string", description: "User CUID" },
   },
-  required: ['id'],
+  required: ["id"],
 };

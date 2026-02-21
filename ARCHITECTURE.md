@@ -160,7 +160,7 @@ sequenceDiagram
     participant Prisma
 
     Client->>RateLimiter: GET /api/v1/admin/users\nAuthorization: Bearer <token>
-    
+
     alt Rate limit exceeded
         RateLimiter-->>Client: 429 Too Many Requests
     else Within limit

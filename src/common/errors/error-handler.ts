@@ -1,10 +1,11 @@
-import type { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
-import { AppError } from './app-error';
+// src/common/errors/error-handler.ts
+import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
+import { AppError } from "./app-error";
 
 export function errorHandler(
   error: FastifyError | AppError,
   _req: FastifyRequest,
-  reply: FastifyReply
+  reply: FastifyReply,
 ) {
   // ✅ Known application errors.
   if (error instanceof AppError) {
@@ -17,11 +18,11 @@ export function errorHandler(
   }
 
   // ✅ Prisma errors (safe handling)
-  if ((error as any).code?.startsWith('P')) {
+  if ((error as any).code?.startsWith("P")) {
     return reply.status(400).send({
       error: {
-        code: 'DATABASE_ERROR',
-        message: 'Invalid database operation',
+        code: "DATABASE_ERROR",
+        message: "Invalid database operation",
       },
     });
   }
@@ -31,8 +32,8 @@ export function errorHandler(
 
   return reply.status(500).send({
     error: {
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Something went wrong',
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Something went wrong",
     },
   });
 }

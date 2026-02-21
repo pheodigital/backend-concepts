@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   app:
@@ -7,7 +7,7 @@ services:
     working_dir: /workspace
     volumes:
       - ..:/workspace:cached
-    command: sleep infinity  # keeps container alive for Codespaces
+    command: sleep infinity # keeps container alive for Codespaces
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/backend_db
     depends_on:
@@ -23,11 +23,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-backend_db}
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}']
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 5

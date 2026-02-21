@@ -8,10 +8,10 @@ This repository serves as a **practical reference** for modern backend developme
 
 ## 📄 Documentation
 
-| Document | Description |
-|---|---|
-| [README.md](./README.md) | Project overview, tech stack, and concept reference |
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | Visual diagrams — system overview, request flows, ERD, Docker layout |
+| Document                               | Description                                                            |
+| -------------------------------------- | ---------------------------------------------------------------------- |
+| [README.md](./README.md)               | Project overview, tech stack, and concept reference                    |
+| [ARCHITECTURE.md](./ARCHITECTURE.md)   | Visual diagrams — system overview, request flows, ERD, Docker layout   |
 | [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) | Deep-dive into design decisions, trade-offs, capacity, and scalability |
 
 ---
@@ -33,16 +33,16 @@ This backend follows clean architectural principles and showcases:
 
 ## 🧱 Tech Stack
 
-| Category | Technology |
-|---|---|
-| **Runtime** | Node.js (TypeScript) |
-| **Framework** | Fastify |
-| **Database** | PostgreSQL |
-| **ORM** | Prisma |
-| **Authentication** | JWT |
-| **Security** | Helmet, CORS, Rate Limiting |
-| **Testing** | Jest, Supertest |
-| **DevOps** | Docker, Docker Compose |
+| Category           | Technology                  |
+| ------------------ | --------------------------- |
+| **Runtime**        | Node.js (TypeScript)        |
+| **Framework**      | Fastify                     |
+| **Database**       | PostgreSQL                  |
+| **ORM**            | Prisma                      |
+| **Authentication** | JWT                         |
+| **Security**       | Helmet, CORS, Rate Limiting |
+| **Testing**        | Jest, Supertest             |
+| **DevOps**         | Docker, Docker Compose      |
 
 ---
 
@@ -89,10 +89,12 @@ npm test
 ## 1. Fundamentals
 
 ### Client–Server Architecture
+
 - Clear separation between API server and frontend clients
 - Backend exposes REST endpoints consumed over HTTP
 
 ### HTTP / HTTPS
+
 - HTTP-based API with security headers applied via Helmet
 - HTTPS assumed in production
 
@@ -103,40 +105,44 @@ Request → Fastify Server → Middleware (preHandler) → Controllers → Servi
 ```
 
 ### Statelessness
+
 - No server-side session storage
 - Authentication handled entirely via JWT
 
 ### HTTP Methods
 
-| Method | Usage |
-|---|---|
-| `GET` | Fetch resources |
+| Method | Usage                             |
+| ------ | --------------------------------- |
+| `GET`  | Fetch resources                   |
 | `POST` | Authentication and creation flows |
 
 ### Status Codes
 
-| Code | Meaning |
-|---|---|
-| `200` | Success |
+| Code  | Meaning                     |
+| ----- | --------------------------- |
+| `200` | Success                     |
 | `400` | Validation or domain errors |
-| `401` | Unauthorized |
-| `500` | Internal server error |
+| `401` | Unauthorized                |
+| `500` | Internal server error       |
 
 ---
 
 ## 2. API Design
 
 ### REST Principles
+
 - Resource-based endpoints
 - Stateless operations
 - Predictable URL structure
 
 ### Resource Modeling
+
 - Users
 - Tasks
 - Authentication flows
 
 ### API Versioning
+
 - Versioned routes: `/api/v1`
 - Enables backward compatibility
 
@@ -154,6 +160,7 @@ All errors follow a consistent structure:
 ```
 
 ### OpenAPI / Swagger Documentation
+
 - Swagger UI enabled
 - Route-level schemas
 - Request & response validation
@@ -164,27 +171,33 @@ All errors follow a consistent structure:
 ## 3. Authentication & Authorization
 
 ### Authentication vs Authorization
+
 - **Authentication**: Who the user is (JWT)
 - **Authorization**: What the user can do (roles)
 
 ### Token-Based Authentication
+
 - Stateless JWT authentication
 - No cookies or sessions
 
 ### JWT (JSON Web Tokens)
+
 - Signed access tokens
 - Payload contains `userId` and `role`
 
 ### Role-Based Access Control (RBAC)
+
 - Roles: `USER`, `ADMIN`
 - Middleware-enforced permissions
 - Admin routes fully protected
 
 ### Refresh Tokens
+
 - Refresh token generation supported
 - Used to extend authentication sessions
 
 ### Password Hashing
+
 - Secure hashing using `argon2`
 - Password verification on login
 
@@ -193,23 +206,28 @@ All errors follow a consistent structure:
 ## 4. Data & Persistence
 
 ### Relational Database
+
 - PostgreSQL as the primary datastore
 - Structured relational schema
 
 ### ORM (Prisma)
+
 - Type-safe database queries
 - Auto-generated Prisma client
 - Compile-time query validation
 
 ### Schema Design
+
 - Users with roles and timestamps
 - Strong typing across all data access layers
 
 ### Database Migrations
+
 - Prisma-managed migrations
 - Version-controlled schema evolution
 
 ### Connection Management
+
 - Singleton Prisma client
 - Prevents connection exhaustion
 - Environment-aware logging
@@ -229,21 +247,23 @@ Config       →  Environment & infrastructure
 ```
 
 ### Separation of Concerns
+
 - No business logic in controllers
 - Services are fully testable in isolation
 
 ### Configuration Management
+
 - Environment variables via `dotenv`
 - Centralized configuration module
 - App fails fast on missing secrets
 
 ### Design Mapping
 
-| Concept | Implementation |
-|---|---|
-| Routes = Contract | Fastify route definitions |
-| Middleware = Policy | Auth, role, rate limiting |
-| Controller = Use Case | Controller methods |
+| Concept                  | Implementation                 |
+| ------------------------ | ------------------------------ |
+| Routes = Contract        | Fastify route definitions      |
+| Middleware = Policy      | Auth, role, rate limiting      |
+| Controller = Use Case    | Controller methods             |
 | Service = Business Logic | `AuthService`, domain services |
 
 ---
@@ -251,6 +271,7 @@ Config       →  Environment & infrastructure
 ## 6. State Management
 
 ### Stateless Server Design
+
 - Each request is authenticated independently
 - JWT used instead of sessions — no shared state between requests
 
@@ -259,14 +280,17 @@ Config       →  Environment & infrastructure
 ## 7. Performance & Scalability
 
 ### Asynchronous Processing
+
 - Non-blocking I/O using Node.js event loop
 - `async/await` across all DB and crypto operations
 
 ### Rate Limiting
+
 - Global rate limiting enabled
 - Protects against brute-force and abuse
 
 ### Database Connection Efficiency
+
 - Prisma manages connection pooling internally
 - Singleton client avoids overhead
 
@@ -275,10 +299,12 @@ Config       →  Environment & infrastructure
 ## 8. Concurrency & Async Processing
 
 ### Node.js Event Loop
+
 - Handles multiple concurrent requests
 - Efficient async execution model
 
 ### Non-Blocking I/O
+
 - Password hashing and DB calls are fully async
 - No blocking synchronous operations
 
@@ -287,14 +313,17 @@ Config       →  Environment & infrastructure
 ## 9. Error Handling & Resilience
 
 ### Centralized Error Handling
+
 - Global Fastify error handler
 - Unified error format across all routes
 
 ### Domain Errors
+
 - Custom `AppError` class
 - Explicit HTTP status codes and error codes
 
 ### Timeouts
+
 - Request timeout configured
 - Prevents hanging requests
 
@@ -303,25 +332,31 @@ Config       →  Environment & infrastructure
 ## 10. Security (Beyond Authentication)
 
 ### CORS
+
 - Strict origin allowlist
 - Credentials support
 - Integration-tested behavior
 
 ### Security Headers
+
 Helmet protects against:
+
 - XSS
 - Clickjacking
 - MIME sniffing
 
 ### SQL Injection Protection
+
 - Prisma parameterized queries
 - No raw SQL execution
 
 ### Input Validation
+
 - Schema-based validation via Swagger
 - Strong TypeScript typing throughout
 
 ### Secrets Management
+
 - Secrets stored in environment variables
 - Runtime validation for missing configuration
 
@@ -330,16 +365,19 @@ Helmet protects against:
 ## 11. Testing
 
 ### Unit Testing
+
 - Service-level unit tests
 - External dependencies fully mocked
 - Business logic tested in isolation
 
 ### Integration Testing
+
 - HTTP-level testing with Supertest
 - Real Fastify server instance
 - Middleware and CORS behavior validated
 
 ### Mocking Strategy
+
 - Prisma mocked in unit tests
 - Crypto and JWT mocked where appropriate
 - Clear separation between unit and integration tests
@@ -349,19 +387,23 @@ Helmet protects against:
 ## 12. DevOps Awareness
 
 ### Docker & Containerization
+
 - Multi-container Docker Compose setup
 - App + PostgreSQL containers
 - Persistent volumes for database data
 
 ### Environment Separation
+
 - Development vs. production behavior
 - Logging and DB config vary by environment
 
 ### Health Checks
+
 - `/health` endpoint exposed
 - Docker health checks configured for PostgreSQL
 
 ### Logging
+
 - Fastify structured logging
 - Environment-aware verbosity levels
 

@@ -1,6 +1,6 @@
 export interface UserResponse {
   id: string;
   email: string;
-  role: 'USER' | 'ADMIN';
+  role: "USER" | "ADMIN";
   createdAt: Date;
 }

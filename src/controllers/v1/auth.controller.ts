@@ -1,6 +1,8 @@
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import { AppError } from '../../common/errors/app-error';
-import { AuthService } from '../../services/v1/auth.service';
+// src/controllers/v1/auth.controller.ts
+
+import type { FastifyReply, FastifyRequest } from "fastify";
+import { AppError } from "../../common/errors/app-error";
+import { AuthService } from "../../services/v1/auth.service";
 
 export class AuthController {
   // ✅ Register a new user
@@ -9,7 +11,7 @@ export class AuthController {
     const { email, password, role } = req.body as {
       email: string;
       password: string;
-      role: 'USER' | 'ADMIN';
+      role: "USER" | "ADMIN";
     };
 
     const user = await AuthService.register(email, password, role);
@@ -25,17 +27,25 @@ export class AuthController {
   static async login(req: FastifyRequest, reply: FastifyReply) {
     const { email, password } = req.body as { email: string; password: string };
 
-    const { user, token: accessToken, refreshToken } = await AuthService.login(email, password);
+    const {
+      user,
+      token: accessToken,
+      refreshToken,
+    } = await AuthService.login(email, password);
 
     if (!process?.env?.JWT_REFRESH_EXPIRES_IN) {
       throw new AppError(
         500,
-        'CONFIG_ERROR',
-        'Missing JWT_REFRESH_EXPIRES_IN in environment variables'
+        "CONFIG_ERROR",
+        "Missing JWT_REFRESH_EXPIRES_IN in environment variables",
       );
     }
     // Store refresh token in DB
-    await AuthService.saveRefreshToken(refreshToken, user.id, process.env.JWT_REFRESH_EXPIRES_IN);
+    await AuthService.saveRefreshToken(
+      refreshToken,
+      user.id,
+      process.env.JWT_REFRESH_EXPIRES_IN,
+    );
 
     return reply.send({
       token: accessToken,
@@ -53,7 +63,7 @@ export class AuthController {
     const { refreshToken } = req.body as { refreshToken: string };
 
     if (!refreshToken) {
-      throw new AppError(400, 'NO_TOKEN', 'Refresh token required');
+      throw new AppError(400, "NO_TOKEN", "Refresh token required");
     }
 
     const { accessToken } = await AuthService.rotateRefreshToken(refreshToken);
@@ -66,11 +76,11 @@ export class AuthController {
     const { refreshToken } = req.body as { refreshToken: string };
 
     if (!refreshToken) {
-      throw new AppError(400, 'NO_TOKEN', 'Refresh token required');
+      throw new AppError(400, "NO_TOKEN", "Refresh token required");
     }
 
     await AuthService.revokeRefreshToken(refreshToken);
 
-    return reply.send({ message: 'Logged out successfully' });
+    return reply.send({ message: "Logged out successfully" });
   }
 }

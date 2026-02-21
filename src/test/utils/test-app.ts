@@ -1,8 +1,8 @@
-import { buildApp } from '../../app';
+// tests/utils/test-app.ts
+import { buildApp } from "../../app"; // your actual app entrypoint
 
 export async function createTestApp() {
-  const app = await buildApp({ enableRateLimit: true });
-  await app.ready(); // ✅ Correct lifecycle hook
-  // await app.listen({ port: 0, host: '127.0.0.1' }); // port 0 = OS picks a free port
+  const app = await buildApp({ enableRateLimit: false }); // rate limiting optional for tests
+  await app.ready(); // Fastify lifecycle hook
   return app;
 }

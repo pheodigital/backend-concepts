@@ -1,5 +1,7 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-import { prisma } from '../../config/prisma';
+// src/controllers/v1/admin.controller.ts
+
+import type { FastifyRequest, FastifyReply } from "fastify";
+import { prisma } from "../../config/prisma";
 
 export class AdminController {
   /**
@@ -13,7 +15,7 @@ export class AdminController {
         role: true,
         createdAt: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
     return reply.send(users);

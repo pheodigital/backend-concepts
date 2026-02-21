@@ -1,6 +1,7 @@
-import type { FastifyRequest, FastifyReply } from 'fastify';
-import { UserService } from '../../services/v1/user.service';
+// src/controllers/v1/user.controller.ts
 
+import type { FastifyRequest, FastifyReply } from "fastify";
+import { UserService } from "../../services/v1/user.service";
 
 // Define param types for routes that use ID
 interface UserIdParams {
@@ -15,7 +16,10 @@ export class UserController {
   }
 
   // ✅ Get user by ID
-  static async getUserById(req: FastifyRequest<{ Params: UserIdParams }>, reply: FastifyReply) {
+  static async getUserById(
+    req: FastifyRequest<{ Params: UserIdParams }>,
+    reply: FastifyReply,
+  ) {
     const { id } = req.params;
     // req.params is already validated by middleware
     const user = await UserService.getUserById(id);

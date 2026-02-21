@@ -1,5 +1,5 @@
 // src/config/prisma.ts
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = global as unknown as { prisma?: PrismaClient };
 
@@ -8,10 +8,13 @@ const globalForPrisma = global as unknown as { prisma?: PrismaClient };
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: process.env.NODE_ENV === 'production' ? ['error'] : ['query', 'info', 'warn', 'error'],
+    log:
+      process.env.NODE_ENV === "production"
+        ? ["error"]
+        : ["query", "info", "warn", "error"],
   });
 
 // Reuse the same instance across hot-reloads in development only
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }
